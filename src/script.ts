@@ -65,28 +65,43 @@ const createTodoElement = (todo: Todo, isDone:boolean): HTMLLIElement =>{
     
     const li = document.createElement('li');
     li.classList.add('redner-container__item');
-    li.textContent = todo.text;
+  
 
     const button = document.createElement('button');
+    const checkbox = document.createElement('input');
+    checkbox.type='checkbox';
     button.classList.add('render-container__item-button');
+    checkbox.classList.add('render-container__item-checkbox')
+
+    const span = document.createElement('span');
+    span.textContent = todo.text;
 
     if(isDone){
-        button.textContent='삭제';
-        button.style.backgroundColor='#dfafda'
-    }else{
-        button.textContent='완료';
-        button.style.backgroundColor='#ceeeffff'
+        checkbox.checked=true;
     }
 
-    button.addEventListener('click',() : void =>{
-        if(isDone){
-            deleteTodo(todo);
-        }else{
+     checkbox.addEventListener('change', (): void => {
+        if (!isDone && checkbox.checked) {
             compleTodo(todo);
         }
-    } );
+    });
 
-    li.appendChild(button);
+    li.appendChild(checkbox);
+    li.appendChild(span);
+
+
+ if (isDone) {
+        const button = document.createElement('button');
+        button.textContent = '삭제';
+        button.classList.add('render-container__item-button');
+    
+
+        button.addEventListener('click', (): void => {
+            deleteTodo(todo);
+        });
+
+        li.appendChild(button);
+    }
     return li;
 };
 

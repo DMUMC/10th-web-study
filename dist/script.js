@@ -37,26 +37,34 @@ const deleteTodo = (todo) => {
 const createTodoElement = (todo, isDone) => {
     const li = document.createElement('li');
     li.classList.add('redner-container__item');
-    li.textContent = todo.text;
     const button = document.createElement('button');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
     button.classList.add('render-container__item-button');
+    checkbox.classList.add('render-container__item-checkbox');
+    const span = document.createElement('span');
+    span.textContent = todo.text;
     if (isDone) {
-        button.textContent = '삭제';
-        button.style.backgroundColor = '#dfafda';
+        checkbox.checked = true;
+        span.style.textDecoration = 'line-through';
     }
-    else {
-        button.textContent = '완료';
-        button.style.backgroundColor = '#ceeeffff';
-    }
-    button.addEventListener('click', () => {
-        if (isDone) {
-            deleteTodo(todo);
-        }
-        else {
+    checkbox.addEventListener('change', () => {
+        if (!isDone && checkbox.checked) {
             compleTodo(todo);
         }
     });
-    li.appendChild(button);
+    li.appendChild(checkbox);
+    li.appendChild(span);
+    if (isDone) {
+        const button = document.createElement('button');
+        button.textContent = '삭제';
+        button.classList.add('render-container__item-button');
+        button.style.backgroundColor = '#dfafda';
+        button.addEventListener('click', () => {
+            deleteTodo(todo);
+        });
+        li.appendChild(button);
+    }
     return li;
 };
 todoForm.addEventListener('submit', (event) => {

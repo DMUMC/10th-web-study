@@ -88,15 +88,24 @@ body {
 }
 
 .render-container__item-button{
-    background-color: rgb(255, 212, 212);
+    background-color: rgb(255, 233, 254);
     border: none;
     border-radius: 10px;
     width: 50px;
     padding: 8px 12px;
     cursor: pointer;
+    margin-left: 10px;
     transition: background-color 0.3s ease;
 }
 
 .render-container__item-button:hover{
     background-color: rgb(255, 181, 181);
+}
+
+.render-container__item-checkbox{
+    width:18px;
+    height:18px;
+    accent-color:#b0ceff; 
+    cursor:pointer;
+    margin-right:10px;
 }
