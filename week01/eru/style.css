@@ -1,0 +1,194 @@
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── BASE ── */
+body {
+  background: #e8edf2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  padding: 40px 16px;
+}
+
+/* ── 카드 ── */
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px 48px;
+  width: 100%;
+  max-width: 620px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ── 제목 ── */
+.card__title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #111;
+  margin-bottom: 28px;
+}
+
+/* ── 입력 폼 ── */
+.todo-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.todo-form__input {
+  flex: 1;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  color: #111;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.todo-form__input::placeholder {
+  color: #aaa;
+}
+
+.todo-form__input:focus {
+  border-color: #2196F3;
+}
+
+.todo-form__btn {
+  background: #3cb731;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.todo-form__btn:hover {
+  background: #33a029;
+}
+
+/* ── 섹션 래퍼 (가로 2분할) ── */
+.sections-wrapper {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.todo-section {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── 섹션 타이틀 ── */
+.todo-section__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 0.06em;
+}
+
+/* ── 리스트 ── */
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── 아이템 ── */
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 12px 14px;
+  animation: slide-in 0.18s ease;
+}
+
+.todo-item--done {
+  background: #f9f9f9;
+}
+
+.todo-item--removing {
+  animation: fade-out 0.18s ease forwards;
+}
+
+/* ── 아이템 텍스트 ── */
+.todo-item__text {
+  font-size: 0.95rem;
+  color: #111;
+  flex: 1;
+  word-break: break-all;
+  margin-right: 10px;
+}
+
+/* ── 버튼 공통 ── */
+.todo-item__btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+/* ── 완료 버튼 ── */
+.todo-item__btn--complete {
+  background: #3cb731;
+  color: #fff;
+}
+
+.todo-item__btn--complete:hover {
+  background: #33a029;
+}
+
+/* ── 삭제 버튼 ── */
+.todo-item__btn--delete {
+  background: #e53935;
+  color: #fff;
+}
+
+.todo-item__btn--delete:hover {
+  background: #c62828;
+}
+
+/* ── 빈 상태 ── */
+.todo-list__empty {
+  font-size: 0.8rem;
+  color: #bbb;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ── 애니메이션 ── */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; transform: translateX(10px); }
+}
+
+/* ── 반응형 ── */
+@media (max-width: 480px) {
+  .sections-wrapper { flex-direction: column; }
+  .card { padding: 28px 20px 36px; }
+}
