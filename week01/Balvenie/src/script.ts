@@ -3,13 +3,6 @@ const todoForm  = document.getElementById('todo-form')  as HTMLFormElement;
 const todoList  = document.getElementById('todo-list')  as HTMLUListElement;
 const doneList  = document.getElementById('done-list')  as HTMLUListElement;
 
-//<ul id="todo-list" class="render-container__list">
-//  <li class="render-container__item">
-//    <p class="render-container__item"></p>
-//    <button class="render-container__item-button">삭제</button>
-//  </li>
-//</ul>
-
 type Todo = {
   id: number;
   text: string;
@@ -57,7 +50,12 @@ function deleteTodo(todo: Todo): void {
 function createTodoElement(todo: Todo, isDone: boolean): HTMLLIElement {
   const li = document.createElement('li');
   li.classList.add('render-container__item');
-  li.textContent = todo.text;
+
+  // 리뷰 피드백 반영: p 태그를 생성하여 텍스트를 감싸줌
+  const text = document.createElement('p');
+  text.classList.add('render-container__item-text');
+  text.textContent = todo.text;
+  li.appendChild(text);
 
   const button = document.createElement('button');
   button.classList.add('render-container__item-button');
