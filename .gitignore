@@ -79,6 +79,3 @@ build/
 # env
 .env
 .env.*.local
-
-# week06 backend artifacts
-week06/back/
