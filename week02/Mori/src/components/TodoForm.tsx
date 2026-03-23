@@ -1,18 +1,19 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { useTodoContext } from '../context/useTodoContext.ts'
 
 export function TodoForm() {
   const { addTodo } = useTodoContext()
   const [input, setInput] = useState('')
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    addTodo(input)
-    setInput('')
-  }
-
   return (
-    <form className="todo-app__form" onSubmit={onSubmit}>
+    <form
+      className="todo-app__form"
+      onSubmit={(event) => {
+        event.preventDefault()
+        addTodo(input)
+        setInput('')
+      }}
+    >
       <input
         className="todo-app__input"
         type="text"
