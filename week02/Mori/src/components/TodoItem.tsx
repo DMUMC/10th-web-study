@@ -10,12 +10,14 @@ export function TodoItem({ todo, isCompleted }: TodoItemProps) {
   const { toggleTodo, deleteTodo } = useTodoContext()
 
   return (
-    <li className="todo-item">
-      <span className="todo-item__text">{todo.text}</span>
-      <div className="todo-item__actions">
+    <li className="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-900 dark:bg-slate-700">
+      <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+        {todo.text}
+      </span>
+      <div className="flex gap-2">
         {!isCompleted && (
           <button
-            className="todo-item__complete-button"
+            className="rounded-lg bg-green-500 px-3 py-2 font-bold text-white transition hover:bg-green-600"
             type="button"
             onClick={() => toggleTodo(todo.id)}
           >
@@ -24,7 +26,7 @@ export function TodoItem({ todo, isCompleted }: TodoItemProps) {
         )}
         {isCompleted && (
           <button
-            className="todo-item__complete-button"
+            className="rounded-lg bg-green-500 px-3 py-2 font-bold text-white transition hover:bg-green-600"
             type="button"
             onClick={() => toggleTodo(todo.id)}
           >
@@ -32,7 +34,7 @@ export function TodoItem({ todo, isCompleted }: TodoItemProps) {
           </button>
         )}
         <button
-          className="todo-item__delete-button"
+          className="rounded-lg bg-red-500 px-3 py-2 font-bold text-white transition hover:bg-red-600"
           type="button"
           onClick={() => deleteTodo(todo.id)}
         >
