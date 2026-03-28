@@ -1,5 +1,6 @@
 import { type Todo } from '../context/TodoContext.tsx'
 import { useTodoContext } from '../context/useTodoContext.ts'
+import { TodoActionButton } from './TodoActionButton.tsx'
 
 type TodoItemProps = {
   todo: Todo
@@ -10,34 +11,30 @@ export function TodoItem({ todo, isCompleted }: TodoItemProps) {
   const { toggleTodo, deleteTodo } = useTodoContext()
 
   return (
-    <li className="todo-item">
-      <span className="todo-item__text">{todo.text}</span>
-      <div className="todo-item__actions">
+    <li className="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-900 dark:bg-slate-700">
+      <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+        {todo.text}
+      </span>
+      <div className="flex gap-2">
         {!isCompleted && (
-          <button
-            className="todo-item__complete-button"
-            type="button"
+          <TodoActionButton
+            label="완료"
             onClick={() => toggleTodo(todo.id)}
-          >
-            완료
-          </button>
+            variant="green"
+          />
         )}
         {isCompleted && (
-          <button
-            className="todo-item__complete-button"
-            type="button"
+          <TodoActionButton
+            label="취소"
             onClick={() => toggleTodo(todo.id)}
-          >
-            취소
-          </button>
+            variant="green"
+          />
         )}
-        <button
-          className="todo-item__delete-button"
-          type="button"
+        <TodoActionButton
+          label="삭제"
           onClick={() => deleteTodo(todo.id)}
-        >
-          삭제
-        </button>
+          variant="red"
+        />
       </div>
     </li>
   )
