@@ -1,14 +1,11 @@
 import './App.css'
-import Todo from './components/Todo'
-import { TodoProvider } from './components/TodoContext'
+import { ContextPage } from './pages/ContextPage'
 
 function App() {
 
   return (
     <>
-      <TodoProvider>
-        <Todo />
-      </TodoProvider>
+      <ContextPage />
     </>
   )
 }
