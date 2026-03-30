@@ -24,7 +24,7 @@ export const MovieCard = ({movie}: MovieCardProps) => {
          />
         
         {isHovered && (
-            <div className="absolute inset-0 bg-linear-to-t from-black/50
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50
             to-transparent backdrop:blur-md flex flex-col justify-center
             items-center text-white p-4">
                 <h2 className="text-lg font-bold leading-snug">{movie.title}</h2>
