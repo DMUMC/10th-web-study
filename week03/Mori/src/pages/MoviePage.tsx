@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import axios from 'axios'
 import { type MovieResponse, type Movie } from '../types/movies'
 import MovieCard from '../components/MovieCard'
 import Spinner from '../components/Spinner'
+import { apiClient } from '../util/AxiosInstance'
 
 export type MovieCategory = 'popular' | 'upcoming' | 'top_rated' | 'now_playing'
 
@@ -14,7 +14,7 @@ const categoryTitle: Record<MovieCategory, string> = {
 }
 
 export default function MoviePage({ category }: { category: MovieCategory }) {
-  const apiKey = import.meta.env.VITE_TMDB_API_KEY as string | undefined
+  const hasAuth = Boolean(import.meta.env.VITE_TMDB_API_KEY)
 
   const [movies, setMovies] = useState<Movie[]>([])
   const [page, setPage] = useState(1)
@@ -22,13 +22,10 @@ export default function MoviePage({ category }: { category: MovieCategory }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const title = categoryTitle[category]
-  const endpoint = useMemo(
-    () => `https://api.themoviedb.org/3/movie/${category}`,
-    [category]
-  )
+  const path = useMemo(() => `/movie/${category}`, [category])
 
   useEffect(() => {
-    if (!apiKey) {
+    if (!hasAuth) {
       setErrorMessage('TMDB API 키가 없습니다.')
       return
     }
@@ -41,8 +38,8 @@ export default function MoviePage({ category }: { category: MovieCategory }) {
       setErrorMessage(null)
 
       try {
-        const { data } = await axios.get<MovieResponse>(endpoint, {
-          params: { api_key: apiKey, language: 'ko-KR', page },
+        const { data } = await apiClient.get<MovieResponse>(path, {
+          params: { language: 'ko-KR', page },
           signal: controller.signal,
         })
 
@@ -66,7 +63,7 @@ export default function MoviePage({ category }: { category: MovieCategory }) {
       isMounted = false
       controller.abort()
     }
-  }, [apiKey, endpoint, page])
+  }, [hasAuth, path, page])
 
   return (
     <section>
