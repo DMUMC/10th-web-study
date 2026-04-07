@@ -1,48 +1,16 @@
-import { useEffect, useState } from "react";
-import type { MovieCredits, MovieDetail } from "../types/movie";
-import axios from "axios";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import MovieProfile from "../components/MovieProfile";
+import useMovieDetail from "../types/useMovieDetail";
+import ApiError from "../components/ApiError";
 
 export default function MovieDetailPage() {
-    const [movieDetail, setMovieDetail] = useState<MovieDetail | null>(null);
-    const [credits, setCredits] = useState<MovieCredits | null>(null);
-    const [isPending, setIsPending] = useState(false);
     const { movieId } = useParams<{ movieId: string }>();
-
-    useEffect(() : void => {
-        const fetchMovieDetail = async() : Promise<void> => {
-            try {
-                const { data : movieData } = await axios.get<MovieDetail>(
-                    `https://api.themoviedb.org/3/movie/${movieId}?language=ko`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-                        },
-                    }
-                );
-                const { data: creditsData } = await axios.get<MovieCredits>(
-                    `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-                        },
-                    }
-                );
-                setMovieDetail(movieData);
-                setCredits(creditsData);
-            } finally {
-                setIsPending(false);
-            }
-        };
-        if (movieId) {
-            fetchMovieDetail();
-        }
-    }, [movieId]);
-
+    const { movieDetail, credits, isPending, error } = useMovieDetail(movieId);
+    
     return (
         <>
+            {error && <ApiError />}
             {isPending ? (
                 <div className="flex items-center justify-center h-screen">
                     <LoadingSpinner />
