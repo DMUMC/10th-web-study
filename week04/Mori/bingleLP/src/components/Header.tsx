@@ -7,6 +7,11 @@ type HeaderProps = {
 export function Header({ onSignupClick }: HeaderProps) {
   const navigate = useNavigate()
 
+  function handleSignup() {
+    if (onSignupClick) onSignupClick()
+    else navigate('/signup')
+  }
+
   return (
     <header className="flex w-full shrink-0 items-center justify-between bg-zinc-900 px-4 py-3 md:px-8">
       <Link
@@ -25,7 +30,7 @@ export function Header({ onSignupClick }: HeaderProps) {
         </button>
         <button
           type="button"
-          onClick={onSignupClick}
+          onClick={handleSignup}
           className="rounded-md bg-main-pink px-3 py-1 text-sm font-normal text-white transition hover:opacity-90"
         >
           회원가입
