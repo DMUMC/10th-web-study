@@ -114,7 +114,7 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="mt-2 w-full rounded-lg bg-zinc-800 py-3 text-[15px] font-bold text-zinc-500 transition duration-300 enabled:hover:bg-main-pink enabled:hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-2 w-full rounded-lg bg-zinc-800 py-3 text-[15px] font-bold text-zinc-500 transition duration-300 enabled:bg-main-pink enabled:text-white disabled:cursor-not-allowed"
           >
             로그인
           </button>
