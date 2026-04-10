@@ -61,8 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 
   const signup = useCallback(
-    async (name: string, email: string, password: string) => {
-      await postSignup({ name, email, password })
+    async (payload: { nickname: string; email: string; password: string }) => {
+      await postSignup(payload)
     },
     [],
   )

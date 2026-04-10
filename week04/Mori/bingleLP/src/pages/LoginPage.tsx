@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { AuthSocialButton } from '../components/auth/AuthSocialButton'
 import { loginFormSchema, type LoginFormValues } from '../schemas/auth'
 
 export function LoginPage() {
@@ -41,24 +42,10 @@ export function LoginPage() {
           <h1 className="text-xl font-bold text-white">로그인</h1>
         </div>
 
-        <button
-          type="button"
-          onClick={() => startGoogleLogin()}
-          className="grid w-full grid-cols-[3rem_minmax(0,1fr)_3rem] items-center rounded-lg border border-zinc-600 bg-transparent py-2 text-md font-normal text-white transition hover:bg-zinc-900"
-        >
-          <span className="flex h-10 items-center justify-start pl-3">
-            <img
-              src="/googleLogo.png"
-              alt=""
-              width={32}
-              height={32}
-              className="h-8 w-8 shrink-0 object-contain"
-              decoding="async"
-            />
-          </span>
-          <span className="truncate text-center">Google 계정으로 로그인</span>
-          <span className="pointer-events-none select-none" aria-hidden />
-        </button>
+        <AuthSocialButton
+          onClick={startGoogleLogin}
+          label="Google 계정으로 로그인"
+        />
 
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-zinc-700" />
