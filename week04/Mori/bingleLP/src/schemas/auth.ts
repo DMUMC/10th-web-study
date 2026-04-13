@@ -24,7 +24,7 @@ export const signupEmailFieldSchema = z.object({
   email: loginFormSchema.shape.email,
 })
 
-export const signupPasswordFieldsSchema = z
+export const passwordPairSchema = z
   .object({
     password: z.string().min(PASSWORD_MIN_LENGTH, { message: PASSWORD_ERROR }),
     passwordConfirm: z
@@ -35,23 +35,16 @@ export const signupPasswordFieldsSchema = z
     path: ['passwordConfirm'],
     message: PASSWORD_MISMATCH,
   })
+
+export const signupPasswordFieldsSchema = passwordPairSchema
 
 export const signupNicknameFieldSchema = z.object({
   nickname: z.string().trim().min(1, { message: NICKNAME_ERROR }),
 })
 
-export const signupFormSchema = z
-  .object({
+export const signupFormSchema = passwordPairSchema.extend({
     email: loginFormSchema.shape.email,
-    password: z.string().min(PASSWORD_MIN_LENGTH, { message: PASSWORD_ERROR }),
-    passwordConfirm: z
-      .string()
-      .min(1, '비밀번호 확인을 입력해주세요.'),
     nickname: z.string().trim().min(1, { message: NICKNAME_ERROR }),
-  })
-  .refine((d) => d.password === d.passwordConfirm, {
-    path: ['passwordConfirm'],
-    message: PASSWORD_MISMATCH,
   })
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>
