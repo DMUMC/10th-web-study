@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { AuthInput } from '../components/auth/AuthInput'
 import { AuthSocialButton } from '../components/auth/AuthSocialButton'
 import { loginFormSchema, type LoginFormValues } from '../schemas/auth'
 
@@ -75,54 +76,22 @@ export function LoginPage() {
           })}
           noValidate
         >
-          <div className="flex flex-col gap-1.5">
-            <input
-              type="email"
-              autoComplete="email"
-              placeholder="이메일을 입력해주세요!"
-              aria-invalid={errors.email ? true : undefined}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              className={`w-full rounded-lg border bg-zinc-800 px-4 py-3 text-[15px] text-white placeholder:text-zinc-500 outline-none transition focus:ring-1 ${
-                errors.email
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/40'
-                  : 'border-zinc-700 focus:border-zinc-500 focus:ring-zinc-500'
-              }`}
-              {...register('email')}
-            />
-            {errors.email ? (
-              <p
-                id="email-error"
-                role="alert"
-                className="text-left text-sm text-red-400"
-              >
-                {errors.email.message}
-              </p>
-            ) : null}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <input
-              type="password"
-              autoComplete="current-password"
-              placeholder="비밀번호를 입력해주세요!"
-              aria-invalid={errors.password ? true : undefined}
-              aria-describedby={errors.password ? 'password-error' : undefined}
-              className={`w-full rounded-lg border bg-zinc-800 px-4 py-3 text-[15px] text-white placeholder:text-zinc-500 outline-none transition focus:ring-1 ${
-                errors.password
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/40'
-                  : 'border-zinc-700 focus:border-zinc-500 focus:ring-zinc-500'
-              }`}
-              {...register('password')}
-            />
-            {errors.password ? (
-              <p
-                id="password-error"
-                role="alert"
-                className="text-left text-sm text-red-400"
-              >
-                {errors.password.message}
-              </p>
-            ) : null}
-          </div>
+          <AuthInput
+            type="email"
+            autoComplete="email"
+            placeholder="이메일을 입력해주세요!"
+            error={errors.email?.message}
+            errorId="email-error"
+            registration={register('email')}
+          />
+          <AuthInput
+            type="password"
+            autoComplete="current-password"
+            placeholder="비밀번호를 입력해주세요!"
+            error={errors.password?.message}
+            errorId="password-error"
+            registration={register('password')}
+          />
           {apiError ? (
             <p role="alert" className="text-left text-sm text-red-400">
               {apiError}

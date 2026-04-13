@@ -1,4 +1,10 @@
 import type { StoredUser } from './tokens'
+import { z } from 'zod'
+
+const storedUserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+})
 
 export const stringTokenAdapter = {
   serialize: (value: string | null): string | null =>
@@ -12,18 +18,8 @@ export const storedUserAdapter = {
   deserialize: (raw: string | null): StoredUser | null => {
     if (raw === null) return null
     try {
-      const o = JSON.parse(raw) as unknown
-      if (
-        o &&
-        typeof o === 'object' &&
-        'id' in o &&
-        'name' in o &&
-        typeof (o as { id: unknown }).id === 'number' &&
-        typeof (o as { name: unknown }).name === 'string'
-      ) {
-        return { id: (o as StoredUser).id, name: (o as StoredUser).name }
-      }
-      return null
+      const parsed = storedUserSchema.safeParse(JSON.parse(raw) as unknown)
+      return parsed.success ? parsed.data : null
     } catch {
       return null
     }
