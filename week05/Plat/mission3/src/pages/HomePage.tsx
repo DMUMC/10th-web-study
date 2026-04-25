@@ -2,34 +2,31 @@ import { Link } from "react-router-dom";
 
 export default function HomePage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      <div className="bg-gray-800 p-10 rounded-2xl shadow-2xl flex flex-col items-center gap-6 w-[320px]">
-        
-        {/* 타이틀 */}
-        <h1 className="text-2xl font-bold">Welcome</h1>
-        <p className="text-sm text-gray-400 text-center">
+    <div className="flex min-h-[calc(100vh-160px)] items-center justify-center px-4 text-white">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-2xl backdrop-blur-sm">
+        <h1 className="text-3xl font-bold">Welcome</h1>
+        <p className="mt-2 text-sm text-gray-400">
           Please choose an option below
         </p>
 
-        {/* 버튼 영역 */}
-        <div className="flex flex-col gap-3 w-full">
+        <div className="mt-8 flex flex-col gap-4">
           <Link
             to="/login"
-            className="w-full text-center bg-blue-500 hover:bg-blue-600 transition-colors py-2 rounded-lg font-medium"
+            className="w-full rounded-2xl bg-purple-500/20 py-3 font-semibold text-white transition-colors hover:bg-purple-600"
           >
             Login
           </Link>
 
           <Link
             to="/signup"
-            className="w-full text-center bg-purple-500 hover:bg-purple-600 transition-colors py-2 rounded-lg font-medium"
+            className="w-full rounded-2xl border border-white/10 bg-white/10 py-3 font-semibold text-white transition-colors hover:bg-white/15"
           >
             Sign Up
           </Link>
 
           <Link
             to="/my"
-            className="w-full text-center border border-gray-600 hover:bg-gray-700 transition-colors py-2 rounded-lg font-medium"
+            className="w-full rounded-2xl border border-white/10 bg-purple-500/5 py-3 font-semibold text-gray-300 transition-colors hover:bg-white/10"
           >
             My Page
           </Link>

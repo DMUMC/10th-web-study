@@ -38,8 +38,16 @@ const MyPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-gray-950 to-black text-white px-4">
       <div className="w-full max-w-md bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl shadow-2xl p-8">
         <div className="flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-3xl font-bold shadow-lg">
-            {data.data?.name?.charAt(0).toUpperCase()}
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-3xl font-bold shadow-lg">
+            {data.data?.avatar ? (
+              <img
+                src={data.data.avatar}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              data.data?.name?.charAt(0).toUpperCase()
+            )}
           </div>
 
           <h1 className="mt-5 text-2xl font-bold">My Page</h1>
