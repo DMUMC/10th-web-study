@@ -12,7 +12,9 @@ const MyPage = () => {
 
     useEffect(() => {
 
-      if(!accessToken){
+
+     const token = localStorage.getItem('accessToken');
+      if(!TaskPriorityChangeEvent){
         navigate("/login", {replace:true});
         return;
       }
