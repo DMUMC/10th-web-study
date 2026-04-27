@@ -7,6 +7,8 @@ import { postLogout, postSignin } from "../apis/auth";
 interface AuthContextType {
     accessToken: string | null;
     refreshToken: string | null;
+    setAccessToken: React.Dispatch<React.SetStateAction<string | null>>; 
+    setRefreshToken: React.Dispatch<React.SetStateAction<string | null>>; 
     login: (signinData: RequestSigninDto) => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -14,6 +16,8 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
     accessToken: null,
     refreshToken: null,
+    setAccessToken: () => {},
+    setRefreshToken: () => {},
     login: async () => {},
     logout: async () => {}
 });
@@ -71,7 +75,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     };
 
     return (
-        <AuthContext.Provider value={{ accessToken, refreshToken, login, logout }}>
+        <AuthContext.Provider value={{ accessToken, refreshToken, setAccessToken, 
+            setRefreshToken,login, logout }}>
             {children}
         </AuthContext.Provider>
     );

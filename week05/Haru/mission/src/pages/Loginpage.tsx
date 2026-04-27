@@ -17,7 +17,7 @@ const Loginpage = () => {
 
   useEffect(()=>{
     if(accessToken){
-      navigate("/", {replace:true});
+      navigate("/my", {replace:true});
     }
   },[accessToken, navigate])
   const {values, errors, touched, getInputProps} =useForm<UserSigninInformation>({
