@@ -1,6 +1,6 @@
 // src/apis/authApi.ts
 import type { LoginFormData, SignupFormData } from '../utils/validation';
-import { api } from './axios.ts';
+import { api } from './axios';
 
 // 1. 회원가입 API
 export const postSignup = (data: Omit<SignupFormData, 'confirmPassword'>) => {

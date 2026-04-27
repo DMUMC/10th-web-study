@@ -1,4 +1,4 @@
-// src/context/AuthContext.tsx (수정)
+// src/context/AuthContext.tsx
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -20,6 +20,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useLocalStorage<string | null>('authToken', null);
   const [userEmail, setUserEmail] = useLocalStorage<string | null>('userEmail', null);
   const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
+  const [refreshToken, setRefreshToken] = useLocalStorage<string | null>('refreshToken', null);
+  
   const [isLoading, setIsLoading] = useState(false); 
   const navigate = useNavigate(); 
 
@@ -27,9 +29,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const response = await postLogin(data); 
-
-      if (response.data.data.accessToken) {
+      
+      if (response.data.data.accessToken && response.data.data.refreshToken) {
         setToken(response.data.data.accessToken); 
+        setRefreshToken(response.data.data.refreshToken); // 👈 2. Refresh Token 저장
         setUserEmail(data.email); 
         setUserName(response.data.data.name);
         
@@ -57,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('로그아웃 API 호출 실패:', e); 
     } finally {
       setToken(null); 
+      setRefreshToken(null);
       setUserEmail(null); 
       setUserName(null);
       setIsLoading(false);

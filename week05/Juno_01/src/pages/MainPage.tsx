@@ -1,6 +1,6 @@
 // src/pages/MainPage.tsx
 import { Outlet } from "react-router-dom";
-import { Navbar } from "../components/NavBar";
+import { Navbar } from "../components/Navbar";
 import { AuthProvider } from "../context/AutoContext";
 
 export const MainPage = () => {
