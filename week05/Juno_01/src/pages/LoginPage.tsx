@@ -22,6 +22,10 @@ export const LoginPage = () => {
     const handleLogin = async (data: LoginFormData) => {
         await login(data); 
     };
+
+    const handleGoogleLogin = () => {
+      window.location.href = 'http://localhost:8000/v1/auth/google/login';
+    };
     
     return (
         <div className='flex flex-col gap-4 w-80'>
@@ -31,7 +35,11 @@ export const LoginPage = () => {
                 <div className='w-10'></div>
             </div>
 
-            <button type="button" className='flex px-4 py-3 border border-gray-500 rounded-md items-center justify-center relative font-semibold'>
+            <button 
+              type="button" 
+              className='flex px-4 py-3 border border-gray-500 rounded-md items-center justify-center relative font-semibold hover:bg-neutral-800 transition-colors'
+              onClick={handleGoogleLogin}
+            >
                 <img src={googleLogo} alt="googleLogo" className='absolute left-4 w-5 h-5' />
                 <p>구글 로그인</p>
             </button>
