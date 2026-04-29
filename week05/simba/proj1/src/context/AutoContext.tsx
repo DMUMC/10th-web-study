@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useLocalStorage<string | null>('authToken', null);
   const [userEmail, setUserEmail] = useLocalStorage<string | null>('userEmail', null);
   const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
+  const [refreshToken, setRefreshToken] = useLocalStorage<string | null>('refreshToken', null);
+  
   const [isLoading, setIsLoading] = useState(false); 
   const navigate = useNavigate(); 
 
@@ -27,11 +29,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await postLogin(data); 
 
-      if (response.data.data.accessToken) {
+      if (response.data.data.accessToken && response.data.data.refreshToken) {
         setToken(response.data.data.accessToken); 
+        setRefreshToken(response.data.data.refreshToken); // 👈 2. Refresh Token 저장
         setUserEmail(data.email); 
         setUserName(response.data.data.name);
-        
+
         navigate(redirectPath || '/mypage'); 
       } else {
         alert('로그인에 실패했습니다: 서버가 토큰을 반환하지 않았습니다.');
@@ -56,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('로그아웃 API 호출 실패:', e); 
     } finally {
       setToken(null); 
+      setRefreshToken(null);
       setUserEmail(null); 
       setUserName(null);
       setIsLoading(false);
@@ -75,4 +79,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

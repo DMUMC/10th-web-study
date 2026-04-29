@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components/NavBar";
 import { AuthProvider } from "../context/AutoContext";
 
 export const MainPage = () => {
@@ -11,4 +11,4 @@ export const MainPage = () => {
       </div>
     </AuthProvider>
   );
-};
+}
