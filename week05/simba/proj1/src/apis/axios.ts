@@ -6,9 +6,11 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    if (!config.url?.startsWith('/auth')) {
+     const isSignup = config.url?.startsWith('/auth/signup');
+    const isSignin = config.url?.startsWith('/auth/signin');
+
+    if (!isSignup && !isSignin) {
       const tokenItem = localStorage.getItem('authToken');
-      
       if (tokenItem) {
         const token = JSON.parse(tokenItem);
         if (token) {
@@ -19,9 +21,8 @@ api.interceptors.request.use(
     
     return config;
   },
-
   (error) => Promise.reject(error)
-);
+  );
 
 api.interceptors.response.use(
   (response) => response,
@@ -29,16 +30,16 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
-      
+
       (originalRequest as any)._retry = true; 
 
       const refreshTokenItem = localStorage.getItem('refreshToken');
       if (!refreshTokenItem) {
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        console.error('세션이 만료되었습니다. 다시 로그인해주세요.');
         window.location.href = '/login';
         return Promise.reject(error);
       }
-      
+
       const refreshToken = JSON.parse(refreshTokenItem);
 
       try {
@@ -65,13 +66,9 @@ api.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userName');
         localStorage.removeItem('userEmail');
-        
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+
+        console.error('세션이 만료되었습니다. 다시 로그인해주세요.');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
-    }
-
-    return Promise.reject(error);
-  }
-);
+    }})
