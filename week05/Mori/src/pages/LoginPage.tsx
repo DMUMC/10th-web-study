@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { AuthInput } from '../components/auth/AuthInput'
@@ -10,9 +10,12 @@ import { loginFormSchema, type LoginFormValues } from '../schemas/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login, startGoogleLogin } = useAuth()
   const [apiError, setApiError] = useState<string | undefined>()
   const [submitting, setSubmitting] = useState(false)
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from
+    ?.pathname
 
   const {
     register,
@@ -63,7 +66,7 @@ export function LoginPage() {
             setSubmitting(true)
             try {
               await login(values.email, values.password)
-              navigate('/')
+              navigate(from ?? '/', { replace: true })
             } catch (err) {
               setApiError(
                 err instanceof Error
