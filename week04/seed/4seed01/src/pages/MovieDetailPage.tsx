@@ -8,15 +8,22 @@ export default function MovieDetailPage() {
 
     const [movie, setMovie] = useState<any>(null);
     const [credits, setCredits] = useState<any>(null);
-    const [loading, toggleLoading] = useCustomFetch(true);
-    // const [error, toggleError] = useState<string | null>(null);
-    const [error, toggleError] = useCustomFetch(false);
+
+    // const [loading, setLoading] = useState(true);
+    // const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useCustomFetch(true);
+    const [error, setError] = useCustomFetch(false);
 
     useEffect(() => {
         const fetchMovieData = async () => {
             if (!movieId) return;
-            toggleLoading();
-            toggleError();
+
+            setLoading(true);
+            setError(false);
+            console.log("문제");
+            // toggleError();
+            // setLoading(true);
+            // setError(null);
 
             const options = {
                 method: 'GET',
@@ -33,6 +40,11 @@ export default function MovieDetailPage() {
                     fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`, options)
                 ]);
 
+                if (!detailRes.ok || !creditsRes.ok) {
+                    throw new Error("API 요청 실패");
+                }
+
+
                 const detailData = await detailRes.json();
                 const creditsData = await creditsRes.json();
 
@@ -40,15 +52,16 @@ export default function MovieDetailPage() {
                 setCredits(creditsData);
             } catch (error) {
                 console.error("데이터 로드 실패:", error);
+                setError(true);
             } finally {
-                toggleLoading();
+                setLoading(false);
             }
         };
 
         fetchMovieData();
     }, [movieId]);
 
-    if (loading) {
+    if (loading || !movie || !credits) {
         return (
             <div className="p-10 text-white">
                 <LoadingSpinner />
@@ -83,7 +96,7 @@ export default function MovieDetailPage() {
                 <div className="flex gap-6 overflow-x-auto pb-4 
                 p-10 grid gap-4 grid-cols-2 sm:grid-cols-3
     md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10">
-                    {credits.cast.map((person: any) => (
+                    {credits?.cast.map((person: any) => (
                         <div key={person.id} className="w-24 flex-shrink-0 flex flex-col items-center text-center">
                             <div className="w-24 h-24 rounded-full border-2 border-gray-800 overflow-hidden bg-gray-900 flex items-center justify-center">
                                 {person.profile_path ? (
