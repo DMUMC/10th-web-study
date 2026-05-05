@@ -6,6 +6,11 @@ export type AuthContextValue = {
   ready: boolean
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
+  loginWithTokens: (payload: {
+    accessToken: string
+    refreshToken: string
+    user: StoredUser
+  }) => void
   signup: (payload: {
     nickname: string
     email: string

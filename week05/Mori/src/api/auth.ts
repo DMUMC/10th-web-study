@@ -7,6 +7,27 @@ export function getGoogleLoginUrl(): string {
   return `${getApiBaseUrl()}/v1/auth/google/login`
 }
 
+export async function getGoogleCallback(body: {
+  code: string
+  state?: string
+}): Promise<ApiEnvelope<SignInData>> {
+  try {
+    const { data } = await apiClient.get<ApiEnvelope<SignInData>>(
+      '/v1/auth/google/callback',
+      {
+        params: body,
+      },
+    )
+    if (!data.status) {
+      throw new Error(data.message || '구글 로그인에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '구글 로그인에 실패했습니다.'))
+  }
+}
+
 async function requestAuth<T>(
   path: string,
   body: unknown,
