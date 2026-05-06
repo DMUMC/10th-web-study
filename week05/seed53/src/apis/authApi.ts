@@ -9,15 +9,15 @@ export const postSignup = (data: Omit<SignupFormData, 'confirmPassword'>) => {
 
 // 2. 로그인 API
 export const postLogin = (data: LoginFormData) => {
-  return api.post('/auth/signin', data); 
+  return api.post('/auth/signin', data);
 };
 
 // 3. 로그아웃 API
 export const postLogout = () => {
-  return api.post('/auth/signout'); 
+  return api.post('/auth/signout');
 };
 
 // 4. 내 정보 가져오기 API
 export const getMyInfo = () => {
-  return api.get('/users/me'); 
+  return api.get('/users/me');
 };
