@@ -30,3 +30,31 @@ export type ResponseLpListDto = {
   statusCode: number;
   data: CursorBasedResponse<LpItem[]>;
 };
+
+export type CommentAuthor = {
+  id: number;
+  name: string;
+  email: string;
+  bio: string | null;
+  avatar: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CommentItem = {
+  id: number;
+  content: string;
+  lpId: number;
+  authorId: number;
+  createdAt: string;
+  updatedAt: string;
+  author: CommentAuthor; 
+};
+
+
+export type ResponseCommentListDto = {
+  status: boolean;
+  message: string;
+  statusCode: number;
+  data: CursorBasedResponse<CommentItem[]>;
+};
