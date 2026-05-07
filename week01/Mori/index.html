@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="todo-app">
+      <h1 class="todo-app__title">ToDo List</h1>
+
+      <form class="todo-app__form" id="todoForm">
+        <input
+          class="todo-app__input"
+          id="todoInput"
+          type="text"
+          placeholder="할 일을 입력하세요"
+          maxlength="100"
+          required
+        />
+        <button class="todo-app__add-button" type="submit">추가</button>
+      </form>
+
+      <section class="todo-app__lists" aria-label="ToDo 목록">
+        <div class="todo-list" id="todoList" aria-label="할 일 목록">
+          <h2 class="todo-list__title">ToDos</h2>
+          <ul class="todo-list__items" id="todoListItems"></ul>
+        </div>
+
+        <div
+          class="todo-list todo-list--completed"
+          id="completedList"
+          aria-label="완료 목록"
+        >
+          <h2 class="todo-list__title">Completed</h2>
+          <ul class="todo-list__items" id="completedListItems"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script defer src="./main.js"></script>
+  </body>
+</html>
+

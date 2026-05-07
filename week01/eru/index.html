@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YONG TODO</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="card">
+
+  <!-- 제목 -->
+  <h1 class="card__title">YONG TODO</h1>
+
+  <!-- 입력 폼 -->
+  <div class="todo-form">
+    <input
+      id="todo-input"
+      class="todo-form__input"
+      type="text"
+      placeholder="할 일 입력"
+      autocomplete="off"
+      maxlength="100"
+    />
+    <button id="btn-add" class="todo-form__btn">할 일 추가</button>
+  </div>
+
+  <!-- 가로 2분할 섹션 -->
+  <div class="sections-wrapper">
+
+    <section class="todo-section" aria-label="할 일">
+      <h2 class="todo-section__title">할 일</h2>
+      <ul class="todo-list" id="todo-list">
+        <li class="todo-list__empty" id="todo-empty"></li>
+      </ul>
+    </section>
+
+    <section class="todo-section" aria-label="완료">
+      <h2 class="todo-section__title">완료</h2>
+      <ul class="todo-list" id="done-list">
+        <li class="todo-list__empty" id="done-empty"></li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+
+<script src="dist/main.js"></script>
+
+</body>
+</html>
