@@ -1,13 +1,14 @@
-import { CommonResponse } from "./common.ts"
+import { CommonResponse } from "./common";
+
 
 //회원가입
 export type RequestSignupDto = {
     name: string;
     email: string;
     bio?: string;
-    avatar?: string;
+    avator?: string;
     password: string;
-}
+};
 
 export type ResponseSignupDto = CommonResponse<{
     id: number;
@@ -17,21 +18,20 @@ export type ResponseSignupDto = CommonResponse<{
     avatar: string | null;
     createdAt: Date;
     updatedAt: Date;
-}>;
+}>
 
 //로그인
-export type RequestSigninDto = CommonResponse<{
+export type RequestSigninDto = {
     email: string;
     password: string;
-    accessToken: string;
-    refreshToken: string;
-}>;
+}
+
 export type ResponseSigninDto = CommonResponse<{
     id: number;
     name: string;
     accessToken: string;
     refreshToken: string;
-}>;
+}>
 
 //내 정보 조회
 export type ResponseMyInfoDto = CommonResponse<{
@@ -39,7 +39,7 @@ export type ResponseMyInfoDto = CommonResponse<{
     name: string;
     email: string;
     bio: string | null;
-    avatar: string | null;
+    avater: string | null;
     createdAt: Date;
     updateAt: Date;
 }>
