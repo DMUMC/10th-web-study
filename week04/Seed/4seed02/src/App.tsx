@@ -12,6 +12,8 @@ import MyPage from "./pages/MyPage";
 //3.회원가입 페이지
 
 
+import SignupPasswordPage from "./pages/SignupPasswordPage"; // ← import 추가
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -21,10 +23,10 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'login', element: <LoginPage /> },
       { path: "signup", element: <SignupPage /> },
-      { path: 'my', element: <MyPage /> }
+      { path: "signup/password", element: <SignupPasswordPage /> }, // ← SignupPage → SignupPasswordPage
+      { path: "my", element: <MyPage /> },
     ]
   },
-
 ]);
 
 function App() {

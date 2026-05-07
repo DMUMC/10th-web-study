@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { postSignin } from "../apis/auth";
 import { LOCAL_STORAGE_KEY } from "../constants/key.ts";
+import myPage from "../pages/MyPage.tsx"
 // import LoginTypeButton from "../components/LoginTypeButton";
 
 // const handleGoogleLogin = () => {
@@ -32,6 +33,7 @@ const LoginPage = () => {
         try {
             const response = await postSignin(values);
             setItem(response.data.accessToken);
+            navigate("/my");
             console.log(response);
         } catch (error) {
             alert(error?.message);
