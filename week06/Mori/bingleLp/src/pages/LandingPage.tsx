@@ -1,40 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import type { LpItem } from '../api/types'
+import { getLps, type GetLpsParams } from '../api/lps'
 import { NewLpFloatingButton } from '../components/lp/NewLpFloatingButton'
 import { LpList } from '../components/lp/LpList'
 import { LpListSkeleton } from '../components/lp/LpListSkeleton'
 import { QueryErrorCard } from '../components/query/QueryStates'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useSearchFilter } from '../hooks/useSearchFilter'
-import { useLpsQuery, type LpListSort } from '../queries/lps'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import type { LpListSort } from '../queries/lps'
 
 export function LandingPage() {
   const { searchQuery } = useSearchFilter()
   const debouncedSearch = useDebouncedValue(searchQuery.trim(), 300)
   const [sort, setSort] = useState<LpListSort>('desc')
 
+  const queryClient = useQueryClient()
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  // search는 queryKey에 포함되지 않으므로, 값이 바뀔 때마다 쿼리를 새로 불러옵니다.
+  useEffect(() => {
+    void queryClient.invalidateQueries({ queryKey: ['lps', sort] })
+  }, [debouncedSearch, queryClient, sort])
+
   const {
     data,
     isPending,
     isError,
-    isFetching,
-    isPlaceholderData,
     error,
     refetch,
-  } = useLpsQuery({
-    cursor: 0,
-    limit: 10,
-    order: sort,
-    search: debouncedSearch || undefined,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['lps', sort],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => {
+      const cursor = typeof pageParam === 'number' ? pageParam : 0
+      const params: GetLpsParams = {
+        cursor,
+        limit: 10,
+        order: sort,
+        search: debouncedSearch || undefined,
+      }
+      return getLps(params)
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data.hasNext) return undefined
+      return lastPage.data.nextCursor
+    },
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
   })
 
-  const items: LpItem[] = data?.data.data ?? []
-  const showInitialSkeleton = isPending && data === undefined
+  const items: LpItem[] = data?.pages.flatMap((page) => page.data.data) ?? []
+  const isLoading = isPending
 
   function toggleSort(next: LpListSort) {
     setSort(next)
   }
+
+  useEffect(() => {
+    const node = sentinelRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0]
+        if (!first?.isIntersecting) return
+        if (!hasNextPage) return
+        if (isFetchingNextPage) return
+        void fetchNextPage()
+      },
+      { root: null, rootMargin: '300px', threshold: 0 },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, isLoading])
 
   return (
     <main className="relative flex min-h-0 flex-1 flex-col items-center gap-6 bg-black px-4 py-12">
@@ -81,11 +125,8 @@ export function LandingPage() {
               오래된 순
             </button>
           </div>
-          {isFetching ? (
+          {isFetchingNextPage ? (
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-main-pink" aria-hidden />
-          ) : null}
-          {isPlaceholderData ? (
-            <span className="text-[11px] text-white/40">이전 결과 표시 중…</span>
           ) : null}
         </div>
       </header>
@@ -95,18 +136,22 @@ export function LandingPage() {
           message={error instanceof Error ? error.message : '불러오기에 실패했습니다.'}
           onRetry={() => void refetch()}
         />
-      ) : showInitialSkeleton ? (
+      ) : isLoading ? (
         <LpListSkeleton />
       ) : items.length === 0 ? (
         <p className="mx-auto w-full max-w-5xl text-center text-sm text-white/70">
           표시할 LP가 없어요.
         </p>
       ) : (
-        <div
-          className={`mx-auto w-full max-w-5xl ${isFetching ? 'opacity-80 transition-opacity' : ''}`}
-        >
-          <LpList items={items} />
-        </div>
+        <>
+          <div className="mx-auto w-full max-w-5xl">
+            <LpList items={items} />
+          </div>
+
+          {isFetchingNextPage ? <LpListSkeleton /> : null}
+
+          <div ref={sentinelRef} className="h-6 w-full" />
+        </>
       )}
 
       <NewLpFloatingButton />
