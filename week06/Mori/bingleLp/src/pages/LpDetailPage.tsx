@@ -1,6 +1,7 @@
 import { Heart, Pencil, Trash2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { LpCommentsSection } from '../components/lp/LpCommentsSection'
 import { QueryErrorCard } from '../components/query/QueryStates'
 import { LpDetailSkeleton } from '../components/lp/LpDetailSkeleton'
 import { useAuth } from '../hooks/useAuth'
@@ -126,6 +127,8 @@ export function LpDetailPage() {
           </div>
         </div>
       </section>
+
+      {lpId !== null ? <LpCommentsSection lpId={lpId} /> : null}
     </main>
   )
 }

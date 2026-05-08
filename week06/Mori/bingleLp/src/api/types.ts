@@ -53,6 +53,18 @@ export type GetLpsResponse = ApiEnvelope<CursorPagination<LpItem>>
 
 export type GetLpDetailResponse = ApiEnvelope<LpDetail>
 
+export interface LpComment {
+  id: number
+  content: string
+  lpId: number
+  authorId: number
+  createdAt: string
+  updatedAt: string
+  author: LpAuthor
+}
+
+export type GetLpCommentsResponse = ApiEnvelope<CursorPagination<LpComment>>
+
 export interface SignInData {
   id: number
   name: string
