@@ -4,6 +4,7 @@ import type { LpItem } from '../api/types'
 import { NewLpFloatingButton } from '../components/lp/NewLpFloatingButton'
 import { LpList } from '../components/lp/LpList'
 import { LpListSkeleton } from '../components/lp/LpListSkeleton'
+import { QueryErrorCard } from '../components/query/QueryStates'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useSearchFilter } from '../hooks/useSearchFilter'
 import { useLpsQuery, type LpListSort } from '../queries/lps'
@@ -90,18 +91,10 @@ export function LandingPage() {
       </header>
 
       {isError ? (
-        <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 rounded-xl border border-red-400/25 bg-red-400/10 px-6 py-10 text-center">
-          <p className="text-sm text-red-200">
-            {error instanceof Error ? error.message : '불러오기에 실패했습니다.'}
-          </p>
-          <button
-            type="button"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
-            onClick={() => void refetch()}
-          >
-            다시 시도
-          </button>
-        </div>
+        <QueryErrorCard
+          message={error instanceof Error ? error.message : '불러오기에 실패했습니다.'}
+          onRetry={() => void refetch()}
+        />
       ) : showInitialSkeleton ? (
         <LpListSkeleton />
       ) : items.length === 0 ? (

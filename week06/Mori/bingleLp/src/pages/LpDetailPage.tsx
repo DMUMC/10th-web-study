@@ -1,6 +1,8 @@
-import { Heart, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { Heart, Pencil, Trash2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { QueryErrorCard } from '../components/query/QueryStates'
+import { LpDetailSkeleton } from '../components/lp/LpDetailSkeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useLpDetailQuery } from '../queries/lpDetail'
 
@@ -29,36 +31,17 @@ export function LpDetailPage() {
   const { data, isPending, isError, error, refetch } = useLpDetailQuery(lpId)
 
   if (isPending) {
-    return (
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-3 px-4 py-12 text-white">
-        <Loader2 className="h-5 w-5 animate-spin text-main-pink" aria-hidden />
-        <p className="text-sm text-white/70">상세 불러오는 중...</p>
-      </main>
-    )
+    return <LpDetailSkeleton />
   }
 
   if (isError) {
     return (
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center gap-4 px-4 py-12 text-white">
-        <p className="text-sm text-red-300">
-          {error instanceof Error ? error.message : '불러오기에 실패했습니다.'}
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
-            onClick={() => void refetch()}
-          >
-            다시 시도
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-white/10 bg-transparent px-4 py-2 text-sm font-medium text-white/80 transition hover:bg-white/5"
-            onClick={() => navigate(-1)}
-          >
-            뒤로
-          </button>
-        </div>
+      <main className="flex min-h-0 flex-1 flex-col bg-black">
+        <QueryErrorCard
+          message={error instanceof Error ? error.message : '불러오기에 실패했습니다.'}
+          onRetry={() => void refetch()}
+          onBack={() => navigate(-1)}
+        />
       </main>
     )
   }

@@ -17,13 +17,15 @@ function App() {
         <AppChrome>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/lp/:lpid" element={<LpDetailPage />} />
             <Route path="/my" element={<MyPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
             <Route element={<ProtectedRoute />}>
+              <Route path="/lp/:lpid" element={<LpDetailPage />} />
+            <Route element={<ProtectedRoute />}>
               <Route path="/lps/new" element={<LpCreatePage />} />
+            </Route>
             </Route>
           </Routes>
         </AppChrome>
