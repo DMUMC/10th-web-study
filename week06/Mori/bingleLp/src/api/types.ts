@@ -5,14 +5,46 @@ export type ApiEnvelope<T> = {
   data: T
 }
 
-export type SignInData = {
+export interface LpTag {
+  id: number
+  name: string
+}
+
+export interface LpLike {
+  id: number
+  userId: number
+  lpId: number
+}
+
+export interface LpItem {
+  id: number
+  title: string
+  content: string
+  thumbnail: string
+  published: boolean
+  authorId: number
+  createdAt: string
+  updatedAt: string
+  tags: LpTag[]
+  likes: LpLike[]
+}
+
+export interface CursorPagination<TItem> {
+  data: TItem[]
+  nextCursor: number
+  hasNext: boolean
+}
+
+export type GetLpsResponse = ApiEnvelope<CursorPagination<LpItem>>
+
+export interface SignInData {
   id: number
   name: string
   accessToken: string
   refreshToken: string
 }
 
-export type SignUpData = {
+export interface SignUpData {
   id: number
   name: string
   email: string
