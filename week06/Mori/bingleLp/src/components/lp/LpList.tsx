@@ -6,7 +6,7 @@ type Props = {
 
 export function LpList({ items }: Props) {
   return (
-    <ul className="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((lp) => (
         <li
           key={lp.id}
