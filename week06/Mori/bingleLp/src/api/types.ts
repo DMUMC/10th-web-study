@@ -29,6 +29,20 @@ export interface LpItem {
   likes: LpLike[]
 }
 
+export interface LpAuthor {
+  id: number
+  name: string
+  email: string
+  bio: string | null
+  avatar: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LpDetail extends LpItem {
+  author: LpAuthor
+}
+
 export interface CursorPagination<TItem> {
   data: TItem[]
   nextCursor: number
@@ -36,6 +50,8 @@ export interface CursorPagination<TItem> {
 }
 
 export type GetLpsResponse = ApiEnvelope<CursorPagination<LpItem>>
+
+export type GetLpDetailResponse = ApiEnvelope<LpDetail>
 
 export interface SignInData {
   id: number

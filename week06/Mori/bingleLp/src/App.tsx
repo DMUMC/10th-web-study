@@ -6,6 +6,7 @@ import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { MyPage } from './pages/MyPage'
 import { LpCreatePage } from './pages/LpCreatePage'
+import { LpDetailPage } from './pages/LpDetailPage'
 import { SignupPage } from './pages/SignupPage'
 import { GoogleCallbackPage } from './pages/GoogleCallbackPage'
 
@@ -16,6 +17,7 @@ function App() {
         <AppChrome>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/lp/:lpid" element={<LpDetailPage />} />
             <Route path="/my" element={<MyPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
