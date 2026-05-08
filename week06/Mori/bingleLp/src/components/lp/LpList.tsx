@@ -25,15 +25,6 @@ export function LpList({ items }: Props) {
               <p className="line-clamp-1 flex-1 text-sm font-semibold text-white">
                 {lp.title}
               </p>
-              {lp.published ? (
-                <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-200">
-                  공개
-                </span>
-              ) : (
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/70">
-                  비공개
-                </span>
-              )}
             </div>
             <p className="line-clamp-2 text-sm text-white/70">{lp.content}</p>
 
