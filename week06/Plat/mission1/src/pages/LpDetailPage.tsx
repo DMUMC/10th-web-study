@@ -3,6 +3,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useGetLpDetail from "../hooks/queries/useGetLpDetail";
 import { ErrorState, LoadingState } from "../components/QueryStatus";
+import type { PAGINATION_ORDER } from "../enums/common";
+import CommentInputBox from "../components/comment/CommentInputBox";
+import CommentList from "../components/comment/CommentList";
 
 export default function LpDetailPage() {
   const { lpid } = useParams();
@@ -11,6 +14,7 @@ export default function LpDetailPage() {
   const location = useLocation();
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(!accessToken);
+  const [commentOrder, setCommentOrder] = useState<PAGINATION_ORDER>("desc");
 
   const {
     data: lp,
@@ -21,6 +25,10 @@ export default function LpDetailPage() {
 
   const handleGoLogin = () => {
     navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+  };
+
+  const handleToggleCommentOrder = () => {
+    setCommentOrder((prev) => (prev === "desc" ? "asc" : "desc"));
   };
 
   if (!accessToken && isLoginModalOpen) {
@@ -71,7 +79,7 @@ export default function LpDetailPage() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-4xl text-white">
+    <section className="mx-auto w-full max-w-4xl space-y-8 text-white">
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl">
         <div className="aspect-video bg-gray-800">
           <img
@@ -124,6 +132,29 @@ export default function LpDetailPage() {
             </p>
           </article>
         </div>
+      </div>
+
+      <div className="space-y-5 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">댓글</h2>
+            <p className="mt-1 text-sm text-gray-400">
+              Cat에 대한 의견을 확인할 수 있습니다.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleToggleCommentOrder}
+            className="w-fit rounded-2xl border border-white/10 bg-white/10 px-5 py-2 text-sm font-semibold transition-colors hover:bg-white/20"
+          >
+            {commentOrder === "desc" ? "최신순" : "오래된순"}
+          </button>
+        </div>
+
+        <CommentInputBox />
+
+        <CommentList lpId={lpid} order={commentOrder} />
       </div>
     </section>
   );
