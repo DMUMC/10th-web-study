@@ -1,5 +1,3 @@
-// src/types/lp.ts
-
 import type { CommonResponse } from "./common.ts";
 
 export type Tag = {
@@ -26,10 +24,12 @@ export type Lp = {
   likes: Likes[];
 };
 
-export type ResponseLpListDto = CommonResponse<{
+export type LpListData = {
   data: Lp[];
   nextCursor: number | null;
   hasNext: boolean;
-}>;
+};
+
+export type ResponseLpListDto = CommonResponse<LpListData>;
 
 export type ResponseLpDetailDto = CommonResponse<Lp>;
