@@ -1,74 +1,104 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { type PaginationDto } from '../types/common';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { LpCard } from '../components/LpCard';
 import { ErrorDisplay, LpCardSkeleton } from '../components/LoadingError';
-import type { Lp } from '../types/lp';
 import { getLpList } from '../apis/lpApi';
+import type { Lp } from '../types/lp';
 
 export const LpListPage = () => {
-  const [pagination, setPagination] = useState<PaginationDto>({ order: 'desc' });
+  const [order, setOrder] = useState<'desc' | 'asc'>('desc');
+  
+  const observerRef = useRef<HTMLDivElement>(null);
 
-  const { 
-    data: responseData, 
-    isLoading, 
-    isError, 
-    error, 
-    refetch, 
-  } = useQuery({
-    queryKey: ['lps', pagination], 
-    queryFn: () => getLpList(pagination),
-  });
+  const getSafeList = (pageData: any): Lp[] => {
+    if (!pageData) return [];
 
-  const getSafeList = (data: any): Lp[] => {
-    if (!data) return [];
-    
-    if (Array.isArray(data)) return data;
-    
-    if (data.data && Array.isArray(data.data)) return data.data;
-    
-    if (data.data && data.data.data && Array.isArray(data.data.data)) {
-      return data.data.data;
+    if (pageData.data && pageData.data.data && Array.isArray(pageData.data.data)) {
+      return pageData.data.data;
     }
 
-    console.warn('데이터 형식을 파악할 수 없습니다:', data);
+    if (pageData.data && Array.isArray(pageData.data)) {
+      return pageData.data;
+    }
+
+    if (Array.isArray(pageData)) return pageData;
+
     return [];
   };
 
-  const lpList = getSafeList(responseData);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ['lps', order], 
+    
+    queryFn: ({ pageParam }) => 
+      getLpList({ 
+        order, 
+        cursor: pageParam as number | undefined, 
+        limit: 10 
+      }),
+      
+    initialPageParam: undefined,
 
-  const handleSortChange = (newOrder: 'desc' | 'asc') => {
-    setPagination(prev => ({ ...prev, order: newOrder }));
-  };
+    getNextPageParam: (lastPage: any) => {
+        if (lastPage.nextCursor) return lastPage.nextCursor;
+        if (lastPage.data?.nextCursor) return lastPage.data.nextCursor; // 혹시 data 안에 있을 경우
+
+        const items = getSafeList(lastPage); 
+        if (items.length > 0) {
+            return items[items.length - 1].id; 
+        }
+        return undefined; 
+    },
+  });
+
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0];
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const element = observerRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(handleObserver, {
+      threshold: 0.5,
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [handleObserver]);
+
 
   return (
     <div className="w-full max-w-7xl p-4 md:p-8">
       <div className="flex justify-end items-center mb-6 gap-2">
         <button
-          onClick={() => handleSortChange('desc')}
+          onClick={() => setOrder('desc')}
           className={`px-4 py-2 rounded-md font-semibold transition-colors
-            ${pagination.order === 'desc' ? 'bg-white text-black' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`
+            ${order === 'desc' ? 'bg-white text-black' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`
           }
         >
           최신순
         </button>
         <button
-          onClick={() => handleSortChange('asc')}
+          onClick={() => setOrder('asc')}
            className={`px-4 py-2 rounded-md font-semibold transition-colors
-            ${pagination.order === 'asc' ? 'bg-white text-black' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`
+            ${order === 'asc' ? 'bg-white text-black' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`
           }
         >
           오래된순
         </button>
       </div>
-
-      {isLoading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-          {[...Array(10)].map((_, index) => (
-            <LpCardSkeleton key={index} />
-          ))}
-        </div>
-      )}
 
       {isError && (
         <ErrorDisplay 
@@ -77,19 +107,35 @@ export const LpListPage = () => {
         />
       )}
 
-      {!isLoading && !isError && (
-        lpList.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-            {lpList.map((lp: Lp) => (
-              <LpCard key={lp.id} lp={lp} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center text-gray-400 py-20">
-            등록된 LP가 없습니다.
-          </div>
-        )
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        
+        {isLoading && (
+          [...Array(10)].map((_, index) => (
+            <LpCardSkeleton key={`init-skeleton-${index}`} />
+          ))
+        )}
+
+        {!isLoading && !isError && data?.pages.map((page, pageIndex) => {
+          const items = getSafeList(page);
+          return items.map((lp) => (
+            <LpCard key={`${lp.id}-${pageIndex}`} lp={lp} />
+          ));
+        })}
+
+        {isFetchingNextPage && (
+          [...Array(5)].map((_, index) => (
+            <LpCardSkeleton key={`fetch-skeleton-${index}`} />
+          ))
+        )}
+      </div>
+
+      {!isLoading && !isError && data?.pages[0] && getSafeList(data.pages[0]).length === 0 && (
+         <div className="text-center text-gray-400 py-20 w-full col-span-full">
+           등록된 LP가 없습니다.
+         </div>
       )}
+
+      {!isLoading && <div ref={observerRef} className="h-10 w-full" />}
     </div>
   );
 };

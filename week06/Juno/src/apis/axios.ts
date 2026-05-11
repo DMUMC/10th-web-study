@@ -41,8 +41,8 @@ axiosInstance.interceptors.response.use(
         
         localStorage.removeItem(LOCAL_STORAGE_KEY.accessToken);
         localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
-        localStorage.removeItem('userName'); // 혜니님이 쓰시던 키
-        localStorage.removeItem('userEmail'); // 혜니님이 쓰시던 키
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userEmail');
         
         window.location.href = '/login';
         return Promise.reject(error);

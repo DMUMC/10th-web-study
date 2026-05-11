@@ -26,7 +26,7 @@ export const LpDetailSkeleton = () => (
       <div className="h-4 bg-neutral-700 rounded w-16"></div>
     </div>
     
-    <div className="w-full aspect-square max-w-md mx-auto bg-neutral-700 rounded-lg"></div> {/* CD모양(rounded-full) 대신 일반 이미지(rounded-lg) */}
+    <div className="w-full aspect-square max-w-md mx-auto bg-neutral-700 rounded-lg"></div>
 
     <div className="space-y-3">
       <div className="h-4 bg-neutral-700 rounded w-full"></div>
@@ -35,6 +35,18 @@ export const LpDetailSkeleton = () => (
 
     <div className="flex justify-center pt-4 border-t border-neutral-700">
       <div className="h-8 bg-neutral-700 rounded w-20"></div>
+    </div>
+  </div>
+);
+
+export const CommentSkeleton = () => (
+  <div className="flex gap-4 items-start animate-pulse mb-6">
+    <div className="w-10 h-10 bg-neutral-700 rounded-full shrink-0"></div>
+    
+    <div className="flex-1 space-y-2 py-1">
+      <div className="h-4 bg-neutral-700 rounded w-20"></div>
+      <div className="h-4 bg-neutral-700 rounded w-full"></div>
+      <div className="h-4 bg-neutral-700 rounded w-2/3"></div>
     </div>
   </div>
 );

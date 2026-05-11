@@ -7,11 +7,10 @@ import type {
 import { axiosInstance } from './axios';
 
 export const getLpList = async (
-  paginationDto: PaginationDto
-): Promise<ResponseLpListDto> => {
-  
+  params: PaginationDto
+): Promise<ResponseLpListDto & { nextCursor?: number }> => {
   const { data } = await axiosInstance.get(`/v1/lps`, {
-    params: paginationDto,
+    params: params, 
   });
 
   return data;
@@ -20,10 +19,19 @@ export const getLpList = async (
 export const getLpDetail = async (
   lpId: number
 ): Promise<ResponseLpDetailDto> => {
-  
   const { data } = await axiosInstance.get(
     `/v1/lps/${lpId}`
   );
 
+  return data;
+};
+
+export const getLpComments = async (
+  lpId: number,
+  params: PaginationDto
+): Promise<any> => {
+  const { data } = await axiosInstance.get(`/v1/lps/${lpId}/comments`, {
+    params,
+  });
   return data;
 };
