@@ -27,6 +27,7 @@ const LpDetailPage = () => {
     const myId = myInfoData?.data?.id;
     const isOwner = myId !== undefined && lp?.authorId !== undefined && myId === lp.authorId;
     const isLiked = lp?.likes?.some((like: Likes) => like.userId === myId);
+    const likeCount = lp?.likes?.length ?? 0;
 
     const updateLp = useMutation({
         mutationFn: async () => {
@@ -40,7 +41,7 @@ const LpDetailPage = () => {
             return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEY.lp, lpid] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY.lp] });
             setIsEditing(false);
         },
         onError: (error: any) => alert(error.response?.data?.message || '수정 실패')
@@ -53,8 +54,38 @@ const LpDetailPage = () => {
     };
 
     const handleLikeToggle = () => {
-        if (isLiked) unlike.mutate();
-        else like.mutate();
+        if (!myId) return;
+
+        const queryKey = [QUERY_KEY.lp, lpid];
+        const previousData = queryClient.getQueryData(queryKey);
+
+        queryClient.setQueryData(queryKey, (old: any) => {
+            if (!old?.data) return old;
+
+            const alreadyLiked = old.data.likes?.some((l: Likes) => l.userId === myId);
+
+            const newLikes = alreadyLiked
+                ? old.data.likes.filter((l: Likes) => l.userId !== myId)
+                : [...(old.data.likes ?? []), { id: Date.now(), userId: myId, lpId: Number(lpid) }];
+
+            return {
+                ...old,
+                data: {
+                    ...old.data,
+                    likes: newLikes,
+                }
+            };
+        });
+
+        const onError = () => {
+            queryClient.setQueryData(queryKey, previousData);
+        };
+
+        if (isLiked) {
+            unlike.mutate(undefined, { onError });
+        } else {
+            like.mutate(undefined, { onError });
+        }
     };
 
     if (isDetailLoading) {
@@ -150,7 +181,7 @@ const LpDetailPage = () => {
                             : 'border-gray-600 text-gray-400 hover:border-[#FF007A] hover:text-[#FF007A]'
                     }`}
                 >
-                    {isLiked ? '❤️' : '🤍'} {lp?.likes?.length ?? 0}
+                    {isLiked ? '❤️' : '🤍'} {likeCount}
                 </button>
             </div>
 

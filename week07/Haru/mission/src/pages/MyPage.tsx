@@ -3,6 +3,7 @@ import { getMyInfo, patchMyInfo } from '../apis/auth'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { QUERY_KEY } from '../constans/key'
 
 const MyPage = () => {
     const { accessToken } = useAuth();
@@ -14,15 +15,41 @@ const MyPage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState("");
     const [editBio, setEditBio] = useState("");
-    const [previewImage, setPreviewImage] = useState(""); 
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState("");
 
     const updateProfile = useMutation({
         mutationFn: patchMyInfo,
+        onMutate: async (newData) => {
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEY.userMe] });
+
+            const previousData = queryClient.getQueryData([QUERY_KEY.userMe]);
+
+            queryClient.setQueryData([QUERY_KEY.userMe], (old: any) => ({
+                ...old,
+                data: {
+                    ...old?.data,
+                    name: newData.name,
+                    bio: newData.bio,
+                    avatar: newData.avatar,
+                }
+            }));
+
+            setData((prev: any) => ({
+                ...prev,
+                name: newData.name,
+                bio: newData.bio,
+                avatar: newData.avatar,
+            }));
+
+            return { previousData };
+        },
+        onError: (_err, _newData, context) => {
+            queryClient.setQueryData([QUERY_KEY.userMe], context?.previousData);
+            alert('프로필 수정에 실패했습니다.');
+        },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["myInfo"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY.userMe] });
             setIsEditing(false);
-            getData(); 
         },
     });
 
@@ -33,7 +60,7 @@ const MyPage = () => {
             setData(user);
             setEditName(user.name || "");
             setEditBio(user.bio || "");
-           setPreviewImage(user.avatar || "");
+            setPreviewImage(user.avatar || "");
         } catch (error) {
             console.error(error);
         }
@@ -50,7 +77,6 @@ const MyPage = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => setPreviewImage(reader.result as string);
             reader.readAsDataURL(file);
@@ -58,12 +84,12 @@ const MyPage = () => {
     };
 
     const handleSave = () => {
-    updateProfile.mutate({
-        name: editName,
-        bio: editBio || undefined,
-        avatar: previewImage || undefined, 
-    });
-};
+        updateProfile.mutate({
+            name: editName,
+            bio: editBio || undefined,
+            avatar: previewImage || undefined,
+        });
+    };
 
     if (!data) return null;
 
@@ -73,14 +99,14 @@ const MyPage = () => {
             <div className="bg-[#0D0D0D] border border-gray-800 p-10 rounded-xl">
                 <div className="flex items-center gap-8">
                     <div className="relative">
-                        <div 
+                        <div
                             onClick={() => isEditing && fileInputRef.current?.click()}
                             className={`w-32 h-32 bg-gray-800 rounded-full overflow-hidden border-2 border-gray-700 ${isEditing ? 'cursor-pointer hover:opacity-70' : ''}`}
                         >
-                            <img 
-                               src={previewImage || undefined}
-                                alt="profile" 
-                                className="w-full h-full object-cover" 
+                            <img
+                                src={previewImage || undefined}
+                                alt="profile"
+                                className="w-full h-full object-cover"
                             />
                             {isEditing && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs font-bold">변경</div>
@@ -93,12 +119,12 @@ const MyPage = () => {
                         <div className="flex-1 space-y-4">
                             {isEditing ? (
                                 <div className="space-y-3">
-                                    <input 
+                                    <input
                                         value={editName}
                                         onChange={(e) => setEditName(e.target.value)}
                                         className="w-full bg-transparent border border-gray-700 rounded-lg px-4 py-2 text-xl font-bold outline-none focus:border-[#FF007A]"
                                     />
-                                    <input 
+                                    <input
                                         value={editBio}
                                         onChange={(e) => setEditBio(e.target.value)}
                                         className="w-full bg-transparent border border-gray-700 rounded-lg px-4 py-2 text-gray-400 outline-none focus:border-[#FF007A]"
@@ -113,9 +139,10 @@ const MyPage = () => {
                             <p className="text-gray-500 text-sm">{data.email}</p>
                         </div>
                         <div className="pt-2 relative">
-                            <button 
+                            <button
                                 onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                                className="text-2xl hover:text-[#FF007A] transition-colors"
+                                disabled={updateProfile.isPending}
+                                className="text-2xl hover:text-[#FF007A] transition-colors disabled:opacity-50"
                             >
                                 {isEditing ? "✔" : "⚙️"}
                             </button>
