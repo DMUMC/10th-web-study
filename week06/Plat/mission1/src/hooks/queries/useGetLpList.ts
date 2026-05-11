@@ -4,23 +4,19 @@ import { getLpList } from "../../apis/lp.ts";
 import { QUERY_KEY } from "../../constants/key.ts";
 
 function useGetLpList({ cursor, limit, search, order }: PaginationDto) {
-    return useQuery({
-        queryKey: [QUERY_KEY.lps],
-        queryFn: () => 
-            getLpList({ 
-                cursor, 
-                limit, 
-                search, 
-                order 
-            }),
-            staleTime: 1000 * 60 * 5,
-            gcTime: 1000 * 60 * 10,
-            //enabled: false,
-            //refetchInterval: 100 * 60,
-            //intialData: []
-            //keepPreviousData: true,
-            select: (data) => data.data.data,
-    })
+  return useQuery({
+    queryKey: [QUERY_KEY.lps, order, search, cursor, limit],
+    queryFn: () =>
+      getLpList({
+        cursor,
+        limit,
+        search,
+        order,
+      }),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    select: (response) => response.data.data,
+  });
 }
 
 export default useGetLpList;

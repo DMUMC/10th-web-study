@@ -1,82 +1,129 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
+import { getMyInfo } from "../apis/auth";
+import { QUERY_KEY } from "../constants/key";
 
-export default function Header() {
+type HeaderProps = {
+  onMenuClick: () => void;
+};
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const { accessToken, logout } = useAuth();
   const navigate = useNavigate();
 
+  const { data: myInfo } = useQuery({
+    queryKey: [QUERY_KEY.my],
+    queryFn: getMyInfo,
+    enabled: !!accessToken,
+    staleTime: 1000 * 60 * 5,
+    select: (response) => response.data,
+  });
+
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate("/");
   };
 
-  const handleSearch = () => {
-
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
   };
 
   return (
-    <header className="w-full border-b border-white/10 bg-white/5 backdrop-blur-md">
-      <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
-        <Link
-          to="/"
-          className="text-xl font-bold tracking-tight hover:text-purple-400 transition-colors"
-        >
-          Spinning Plat
-        </Link>
-
-        <div className="flex items-center gap-6">
-          <nav className="flex items-center gap-6 text-sm">
-            <form onSubmit={handleSearch} className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-48 px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-sm text-white placeholder:text-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-gray-950/90 backdrop-blur-md">
+      <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onMenuClick}
+            aria-label="사이드바 열기 또는 닫기"
+            className="rounded-xl p-1 text-white transition-colors hover:bg-white/10"
+          >
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="4"
+                d="M7.95 11.95h32m-32 12h32m-32 12h32"
               />
+            </svg>
+          </button>
 
-              <button
-                type="submit"
-                className="px-3 py-1.5 rounded-lg bg-purple-500 hover:bg-purple-600 transition-colors text-sm text-white"
-              >
-                Search
-              </button>
-            </form>
-            {!accessToken && (
+          <Link
+            to="/"
+            className="text-xl font-bold tracking-tight transition-colors hover:text-purple-400"
+          >
+            Cat YaOh
+          </Link>
+        </div>
+
+        <nav className="flex items-center gap-3 text-sm">
+          <form
+            onSubmit={handleSearch}
+            className="hidden items-center gap-2 lg:flex"
+          >
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-48 rounded-lg border border-white/10 bg-white/10 px-3 py-1.5 text-sm text-white outline-none placeholder:text-gray-400 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
+            />
+
+            <button
+              type="submit"
+              className="rounded-lg bg-purple-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-purple-600"
+            >
+              Search
+            </button>
+          </form>
+
+          {!accessToken && (
+            <>
               <Link
                 to="/login"
-                className="px-3 py-1.5 rounded-lg bg-green-400 hover:bg-green-500 transition-colors text-sm text-white"
+                className="rounded-lg bg-green-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-green-600"
               >
-                Login
+                로그인
               </Link>
-            )}
 
-            {!accessToken && (
               <Link
                 to="/signup"
-                className="px-3 py-1.5 rounded-lg bg-blue-400 hover:bg-blue-500 transition-colors text-sm text-white"
+                className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-blue-600"
               >
-                Sign Up
+                회원가입
               </Link>
-            )}
+            </>
+          )}
 
-            {accessToken && (
+          {accessToken && (
+            <>
+              <span className="hidden text-sm text-gray-200 sm:inline">
+                {myInfo?.name ?? "회원"}님 반갑습니다.
+              </span>
+
               <button
+                type="button"
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 transition-colors text-sm text-white"
+                className="rounded-lg bg-red-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-red-600"
               >
-                Logout
+                로그아웃
               </button>
-            )}
 
-            {accessToken && (
               <Link
                 to="/my"
-                className="px-3 py-1.5 rounded-lg bg-purple-500 hover:bg-purple-600 transition-colors text-sm text-white"
+                className="rounded-lg bg-purple-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-purple-600"
               >
-                My Page
+                마이페이지
               </Link>
-            )}
-          </nav>
-        </div>
+            </>
+          )}
+        </nav>
       </div>
     </header>
   );

@@ -1,9 +1,14 @@
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useForm } from "../hooks/useForm";
 import { validateSignin, type UserSignInformation } from "../utils/validate";
+import { LOCAL_STORAGE_KEY } from "../constants/key";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  const redirectPath = searchParams.get("redirect") || "/";
 
   const { values, errors, touched, getInputProps } =
     useForm<UserSignInformation>({
@@ -15,11 +20,17 @@ export default function LoginPage() {
     });
 
   const handleSubmit = async () => {
-    await login(values);
+    await login(values, redirectPath);
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = import.meta.env.VITE_SERVER_API_URL + "/v1/auth/google/login";
+    window.localStorage.setItem(
+      LOCAL_STORAGE_KEY.redirectAfterLogin,
+      redirectPath
+    );
+
+    window.location.href =
+      import.meta.env.VITE_SERVER_API_URL + "/v1/auth/google/login";
   };
 
   const isDisabled =
@@ -31,9 +42,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-sm">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold">Login</h1>
-          <p className="mt-2 text-sm text-gray-400">
-            Sign in to continue
-          </p>
+          <p className="mt-2 text-sm text-gray-400">Sign in to continue</p>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -83,11 +92,7 @@ export default function LoginPage() {
             onClick={handleGoogleLogin}
             className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white py-3 font-semibold text-gray-900 transition-colors hover:bg-gray-200"
           >
-            <img
-              src="/googlelogo.png"
-              alt="Google"
-              className="h-5 w-5"
-            />
+            <img src="/googlelogo.png" alt="Google" className="h-5 w-5" />
             <span>Continue with Google</span>
           </button>
         </div>
