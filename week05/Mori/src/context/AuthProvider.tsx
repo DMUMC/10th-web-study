@@ -1,10 +1,11 @@
-import { useCallback, useLayoutEffect, useMemo } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import {
   getGoogleLoginUrl,
   postSignin,
   postSignout,
   postSignup,
 } from '../api/auth'
+import { apiClient } from '../api/client'
 import { AuthContext } from './authContext'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import {
@@ -14,6 +15,7 @@ import {
 import { clearAuthStorage, STORAGE_KEYS, type StoredUser } from '../lib/tokens'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false)
   const [accessToken, setAccessToken] = useLocalStorage<string | null>(
     STORAGE_KEYS.ACCESS,
     null,
@@ -44,6 +46,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStoredUser(null)
     }
   }, [setAccessToken, setRefreshToken, setStoredUser])
+
+  useEffect(() => {
+    let active = true
+
+    async function verifySession() {
+      const hasSession = !!(accessToken && refreshToken && storedUser)
+      if (!hasSession) {
+        if (active) setReady(true)
+        return
+      }
+
+      try {
+        await apiClient.get('/v1/auth/protected')
+      } catch {
+        clearAuthStorage()
+        if (active) {
+          setAccessToken(null)
+          setRefreshToken(null)
+          setStoredUser(null)
+        }
+      } finally {
+        if (active) setReady(true)
+      }
+    }
+
+    void verifySession()
+
+    return () => {
+      active = false
+    }
+  }, [
+    accessToken,
+    refreshToken,
+    storedUser,
+    setAccessToken,
+    setRefreshToken,
+    setStoredUser,
+  ])
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -80,7 +120,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const user = storedUser
-  const ready = true
   const isAuthenticated =
     user !== null && accessToken !== null && refreshToken !== null
 
