@@ -12,7 +12,9 @@ export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { login, startGoogleLogin } = useAuth()
-  const [apiError, setApiError] = useState<string | undefined>()
+  const [apiError, setApiError] = useState<string | undefined>(
+    (location.state as { oauthError?: string } | null)?.oauthError,
+  )
   const [submitting, setSubmitting] = useState(false)
   const from = (location.state as { from?: { pathname?: string } } | null)?.from
     ?.pathname

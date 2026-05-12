@@ -100,6 +100,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [setAccessToken, setRefreshToken, setStoredUser],
   )
 
+  const loginWithTokens = useCallback(
+    (payload: {
+      accessToken: string
+      refreshToken: string
+      user: StoredUser
+    }) => {
+      setAccessToken(payload.accessToken)
+      setRefreshToken(payload.refreshToken)
+      setStoredUser(payload.user)
+    },
+    [setAccessToken, setRefreshToken, setStoredUser],
+  )
+
   const signup = useCallback(
     async (payload: { nickname: string; email: string; password: string }) => {
       await postSignup(payload)
@@ -129,11 +142,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ready,
       isAuthenticated,
       login,
+      loginWithTokens,
       signup,
       logout,
       startGoogleLogin,
     }),
-    [user, ready, isAuthenticated, login, signup, logout, startGoogleLogin],
+    [
+      user,
+      ready,
+      isAuthenticated,
+      login,
+      loginWithTokens,
+      signup,
+      logout,
+      startGoogleLogin,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
