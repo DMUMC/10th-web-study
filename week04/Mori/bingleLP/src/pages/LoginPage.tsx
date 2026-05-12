@@ -1,11 +1,28 @@
+import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon } from 'lucide-react'
-import { useLoginForm } from '../hooks/useForm'
+import { useAuth } from '../hooks/useAuth'
+import { AuthInput } from '../components/auth/AuthInput'
+import { AuthSocialButton } from '../components/auth/AuthSocialButton'
+import { loginFormSchema, type LoginFormValues } from '../schemas/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const { values, errors, setField, blurField, handleSubmit, canSubmit } =
-    useLoginForm()
+  const { login, startGoogleLogin } = useAuth()
+  const [apiError, setApiError] = useState<string | undefined>()
+  const [submitting, setSubmitting] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+    mode: 'onChange',
+    defaultValues: { email: '', password: '' },
+  })
 
   function handleBack() {
     navigate(-1)
@@ -26,23 +43,10 @@ export function LoginPage() {
           <h1 className="text-xl font-bold text-white">로그인</h1>
         </div>
 
-        <button
-          type="button"
-          className="grid w-full grid-cols-[3rem_minmax(0,1fr)_3rem] items-center rounded-lg border border-zinc-600 bg-transparent py-2 text-md font-normal text-white transition hover:bg-zinc-900"
-        >
-          <span className="flex h-10 items-center justify-start pl-3">
-            <img
-              src="/googleLogo.png"
-              alt=""
-              width={32}
-              height={32}
-              className="h-8 w-8 shrink-0 object-contain"
-              decoding="async"
-            />
-          </span>
-          <span className="truncate text-center">Google 계정으로 로그인</span>
-          <span className="pointer-events-none select-none" aria-hidden />
-        </button>
+        <AuthSocialButton
+          onClick={startGoogleLogin}
+          label="Google 계정으로 로그인"
+        />
 
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-zinc-700" />
@@ -54,69 +58,51 @@ export function LoginPage() {
 
         <form
           className="flex flex-col gap-3"
-          onSubmit={handleSubmit()}
+          onSubmit={handleSubmit(async (values) => {
+            setApiError(undefined)
+            setSubmitting(true)
+            try {
+              await login(values.email, values.password)
+              navigate('/')
+            } catch (err) {
+              setApiError(
+                err instanceof Error
+                  ? err.message
+                  : '로그인에 실패했습니다.',
+              )
+            } finally {
+              setSubmitting(false)
+            }
+          })}
           noValidate
         >
-          <div className="flex flex-col gap-1.5">
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              placeholder="이메일을 입력해주세요!"
-              value={values.email}
-              onChange={(e) => setField('email', e.target.value)}
-              onBlur={() => blurField('email')}
-              aria-invalid={errors.email ? true : undefined}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              className={`w-full rounded-lg border bg-zinc-800 px-4 py-3 text-[15px] text-white placeholder:text-zinc-500 outline-none transition focus:ring-1 ${
-                errors.email
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/40'
-                  : 'border-zinc-700 focus:border-zinc-500 focus:ring-zinc-500'
-              }`}
-            />
-            {errors.email ? (
-              <p
-                id="email-error"
-                role="alert"
-                className="text-left text-sm text-red-400"
-              >
-                {errors.email}
-              </p>
-            ) : null}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              placeholder="비밀번호를 입력해주세요!"
-              value={values.password}
-              onChange={(e) => setField('password', e.target.value)}
-              onBlur={() => blurField('password')}
-              aria-invalid={errors.password ? true : undefined}
-              aria-describedby={errors.password ? 'password-error' : undefined}
-              className={`w-full rounded-lg border bg-zinc-800 px-4 py-3 text-[15px] text-white placeholder:text-zinc-500 outline-none transition focus:ring-1 ${
-                errors.password
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/40'
-                  : 'border-zinc-700 focus:border-zinc-500 focus:ring-zinc-500'
-              }`}
-            />
-            {errors.password ? (
-              <p
-                id="password-error"
-                role="alert"
-                className="text-left text-sm text-red-400"
-              >
-                {errors.password}
-              </p>
-            ) : null}
-          </div>
+          <AuthInput
+            type="email"
+            autoComplete="email"
+            placeholder="이메일을 입력해주세요!"
+            error={errors.email?.message}
+            errorId="email-error"
+            registration={register('email')}
+          />
+          <AuthInput
+            type="password"
+            autoComplete="current-password"
+            placeholder="비밀번호를 입력해주세요!"
+            error={errors.password?.message}
+            errorId="password-error"
+            registration={register('password')}
+          />
+          {apiError ? (
+            <p role="alert" className="text-left text-sm text-red-400">
+              {apiError}
+            </p>
+          ) : null}
           <button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!isValid || submitting}
             className="mt-2 w-full rounded-lg bg-zinc-800 py-3 text-[15px] font-bold text-zinc-500 transition duration-300 enabled:bg-main-pink enabled:text-white disabled:cursor-not-allowed"
           >
-            로그인
+            {submitting ? '로그인 중…' : '로그인'}
           </button>
         </form>
       </div>
