@@ -10,8 +10,11 @@ import SignupPasswordPage from "./pages/SignupPasswordPage";
 import { AuthProvider } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import GoogleLoginRedirectPage from "./pages/GoogleLoginRedirectPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import ProtectedLayout from "./Layouts/ProtectedLayout";
+import LpDetailPage from "./pages/LpDetailPage";
 
-// ✅ AuthProvider로 감싼 Layout 컴포넌트
 const AuthLayout = () => {
   return (
     <AuthProvider>
@@ -23,21 +26,44 @@ const AuthLayout = () => {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <AuthLayout />,  // ✅ Router 안에 AuthProvider가 위치
+    element: <AuthLayout />,
     errorElement: <NotFoundPage />,
     children: [
       { index: true, element: <HomePage /> },
       { path: "login", element: <LoginPage /> },
       { path: "signup", element: <SignupPage /> },
       { path: "signup/password", element: <SignupPasswordPage /> },
-      { path: "my", element: <MyPage /> },  // ✅ protectedRoutes도 통합
-      { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> }
+      { path: "my", element: <MyPage /> },
+      { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> },
+      { path: "/lp/:lpId", element: <LpDetailPage /> }
     ],
   }
 ]);
 
+// const protedRoutes: RouteObject[] = [
+
+// ]
+
+// const router = createBrowserRouter([...publicRoutes, ...ProtectedLayout]);
+
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+    }
+  }
+});
+
 function App() {
-  return <RouterProvider router={router} />;  // ✅ 깔끔하게 RouterProvider만
+  return (
+    < QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
+
+
+  );
 }
 
 export default App;

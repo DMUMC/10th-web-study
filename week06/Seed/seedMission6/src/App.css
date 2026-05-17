@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 
+/* body {
+    background-color: aliceblue;
+    width: auto;
+    height: auto;
+} */
+
 .HomeLayout__nav {
     display: flex;
     flex-direction: row;
@@ -40,7 +46,10 @@
 }
 
 .LoginPage {
+    /* margin-top: 100px; */
+    /* margin-left: 500px; */
     /* background-color: rgb(241, 212, 234); */
+    margin-top: 150px;
     width: 450px;
     height: 550px;
 }
