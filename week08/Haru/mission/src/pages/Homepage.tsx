@@ -122,17 +122,7 @@ const HomePage = () => {
         )}
       </div>
 
-      <div className="py-10">
-        
-        {hasNextPage && !isFetchingNextPage && (
-          <button
-            onClick={() => fetchNextPage()}
-            className="w-full bg-gray-800 text-gray-400 hover:text-white px-4 py-2.5 rounded-md text-sm font-medium transition-colors"
-          >
-            검색 결과 더보기
-          </button>
-        )}
-
+     <div ref={ref} className="py-10">
        
         {isFetchingNextPage && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
