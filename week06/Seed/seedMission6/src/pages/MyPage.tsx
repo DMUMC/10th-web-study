@@ -112,6 +112,7 @@ const MyPage = () => {
                     transition-transform
                     duration-200
                 "
+                onClick={() => navigate(`/search`)}
             >
                 +
             </button>
