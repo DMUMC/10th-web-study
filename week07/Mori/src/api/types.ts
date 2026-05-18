@@ -104,6 +104,26 @@ export type CreateCommentResponse = ApiEnvelope<LpComment>
 export type UpdateCommentResponse = ApiEnvelope<LpComment>
 export type DeleteCommentResponse = ApiEnvelope<{ message: string }>
 
+export interface UserProfile {
+  id: number
+  name: string
+  email: string
+  bio: string | null
+  avatar: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type GetMyProfileResponse = ApiEnvelope<UserProfile>
+
+export interface UpdateUserPayload {
+  name: string
+  bio: string | null
+  avatar: string | null
+}
+
+export type UpdateUserResponse = ApiEnvelope<UserProfile>
+
 export interface SignInData {
   id: number
   name: string

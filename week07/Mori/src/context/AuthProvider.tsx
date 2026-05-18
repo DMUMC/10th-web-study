@@ -132,6 +132,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = getGoogleLoginUrl()
   }, [])
 
+  const updateStoredUser = useCallback(
+    (nextUser: StoredUser) => {
+      setStoredUser(nextUser)
+    },
+    [setStoredUser],
+  )
+
   const user = storedUser
   const isAuthenticated =
     user !== null && accessToken !== null && refreshToken !== null
@@ -146,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signup,
       logout,
       startGoogleLogin,
+      updateStoredUser,
     }),
     [
       user,
@@ -156,6 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signup,
       logout,
       startGoogleLogin,
+      updateStoredUser,
     ],
   )
 

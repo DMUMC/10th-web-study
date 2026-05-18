@@ -18,6 +18,7 @@ export type AuthContextValue = {
   }) => Promise<void>
   logout: () => Promise<void>
   startGoogleLogin: () => void
+  updateStoredUser: (user: StoredUser) => void
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
