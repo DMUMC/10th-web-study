@@ -1,11 +1,14 @@
 import { Heart, Pencil, Trash2 } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { ConfirmModal } from '../components/common/ConfirmModal'
 import { LpCommentsSection } from '../components/lp/LpCommentsSection'
+import { LpEditModal } from '../components/lp/LpEditModal'
 import { QueryErrorCard } from '../components/query/QueryStates'
 import { LpDetailSkeleton } from '../components/lp/LpDetailSkeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useLpDetailQuery } from '../queries/lpDetail'
+import { useDeleteLpMutation } from '../queries/lpMutations'
 
 function formatDateTime(iso: string) {
   const d = new Date(iso)
@@ -23,6 +26,9 @@ export function LpDetailPage() {
   const navigate = useNavigate()
   const { lpid } = useParams()
   const { user, ready } = useAuth()
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const deleteLpMutation = useDeleteLpMutation()
 
   const lpId = useMemo(() => {
     const n = Number(lpid)
@@ -74,6 +80,7 @@ export function LpDetailPage() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
+              onClick={() => setEditOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white transition hover:bg-white/10"
             >
               <Pencil className="h-4 w-4" aria-hidden />
@@ -81,6 +88,7 @@ export function LpDetailPage() {
             </button>
             <button
               type="button"
+              onClick={() => setDeleteOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-red-400/25 bg-red-400/10 px-3 py-2 text-sm text-red-100 transition hover:bg-red-400/15"
             >
               <Trash2 className="h-4 w-4" aria-hidden />
@@ -129,6 +137,29 @@ export function LpDetailPage() {
       </section>
 
       {lpId !== null ? <LpCommentsSection lpId={lpId} /> : null}
+
+      {isMine ? (
+        <>
+          <LpEditModal open={editOpen} lp={lp} onClose={() => setEditOpen(false)} />
+          <ConfirmModal
+            open={deleteOpen}
+            title="LP 삭제"
+            description="이 LP를 삭제할까요? 삭제 후에는 복구할 수 없습니다."
+            confirmLabel="삭제"
+            cancelLabel="취소"
+            pending={deleteLpMutation.isPending}
+            onConfirm={() => {
+              if (lpId === null) return
+              deleteLpMutation.mutate(lpId, {
+                onError: () => setDeleteOpen(false),
+              })
+            }}
+            onCancel={() => {
+              if (!deleteLpMutation.isPending) setDeleteOpen(false)
+            }}
+          />
+        </>
+      ) : null}
     </main>
   )
 }

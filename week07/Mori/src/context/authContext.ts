@@ -17,6 +17,7 @@ export type AuthContextValue = {
     password: string
   }) => Promise<void>
   logout: () => Promise<void>
+  clearSession: () => void
   startGoogleLogin: () => void
   updateStoredUser: (user: StoredUser) => void
 }

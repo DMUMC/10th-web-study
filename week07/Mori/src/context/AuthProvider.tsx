@@ -120,13 +120,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   )
 
-  const logout = useCallback(async () => {
-    const t = accessToken
-    if (t) await postSignout(t)
+  const clearSession = useCallback(() => {
+    clearAuthStorage()
     setAccessToken(null)
     setRefreshToken(null)
     setStoredUser(null)
-  }, [accessToken, setAccessToken, setRefreshToken, setStoredUser])
+  }, [setAccessToken, setRefreshToken, setStoredUser])
+
+  const logout = useCallback(async () => {
+    const t = accessToken
+    if (t) await postSignout(t)
+    clearSession()
+  }, [accessToken, clearSession])
 
   const startGoogleLogin = useCallback(() => {
     window.location.href = getGoogleLoginUrl()
@@ -152,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loginWithTokens,
       signup,
       logout,
+      clearSession,
       startGoogleLogin,
       updateStoredUser,
     }),
@@ -163,6 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loginWithTokens,
       signup,
       logout,
+      clearSession,
       startGoogleLogin,
       updateStoredUser,
     ],

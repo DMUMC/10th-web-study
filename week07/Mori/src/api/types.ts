@@ -72,6 +72,12 @@ export interface CreatedLp {
 
 export type CreateLpResponse = ApiEnvelope<CreatedLp>
 
+export type UpdateLpPayload = CreateLpPayload
+
+export type UpdateLpResponse = ApiEnvelope<LpDetail>
+
+export type DeleteLpResponse = ApiEnvelope<null>
+
 export interface UploadImageData {
   imageUrl: string
 }
@@ -123,6 +129,8 @@ export interface UpdateUserPayload {
 }
 
 export type UpdateUserResponse = ApiEnvelope<UserProfile>
+
+export type DeleteUserResponse = ApiEnvelope<null>
 
 export interface SignInData {
   id: number

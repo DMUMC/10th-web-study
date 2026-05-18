@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSearchFilter } from '../hooks/useSearchFilter'
 import { useAuth } from '../hooks/useAuth'
+import { useLogoutMutation } from '../queries/authMutations'
 import { HamburgerIcon } from './icons/HamburgerIcon'
 
 type HeaderProps = {
@@ -13,23 +13,17 @@ type HeaderProps = {
 
 export function Header({ onSignupClick, menuOpen, onMenuToggle }: HeaderProps) {
   const navigate = useNavigate()
-  const { user, ready, isAuthenticated, logout } = useAuth()
+  const { user, ready, isAuthenticated } = useAuth()
   const { searchQuery, setSearchQuery, searchInputRef } = useSearchFilter()
-  const [logoutPending, setLogoutPending] = useState(false)
+  const logoutMutation = useLogoutMutation()
 
   function handleSignup() {
     if (onSignupClick) onSignupClick()
     else navigate('/signup')
   }
 
-  async function handleLogout() {
-    setLogoutPending(true)
-    try {
-      await logout()
-      navigate('/')
-    } finally {
-      setLogoutPending(false)
-    }
+  function handleLogout() {
+    logoutMutation.mutate()
   }
 
   return (
@@ -89,11 +83,11 @@ export function Header({ onSignupClick, menuOpen, onMenuToggle }: HeaderProps) {
             </span>
             <button
               type="button"
-              onClick={() => void handleLogout()}
-              disabled={logoutPending}
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
               className="shrink-0 rounded-md border border-zinc-600 px-2 py-1 text-xs font-normal text-white transition hover:bg-zinc-800 disabled:opacity-50 md:px-3 md:text-sm"
             >
-              {logoutPending ? '…' : '로그아웃'}
+              {logoutMutation.isPending ? '…' : '로그아웃'}
             </button>
           </div>
         ) : (

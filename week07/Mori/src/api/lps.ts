@@ -6,11 +6,14 @@ import type {
   CreateLpPayload,
   CreateLpResponse,
   DeleteCommentResponse,
+  DeleteLpResponse,
   GetLpCommentsResponse,
   GetLpDetailResponse,
   GetLpsResponse,
   UpdateCommentPayload,
   UpdateCommentResponse,
+  UpdateLpPayload,
+  UpdateLpResponse,
 } from './types'
 
 export type GetLpsParams = {
@@ -43,6 +46,35 @@ export async function getLps(params: GetLpsParams = {}): Promise<GetLpsResponse>
   } catch (err) {
     if (err instanceof Error && !axios.isAxiosError(err)) throw err
     throw new Error(getAxiosErrorMessage(err, 'LP 목록을 불러오지 못했습니다.'))
+  }
+}
+
+export async function updateLp(
+  lpId: number,
+  payload: UpdateLpPayload,
+): Promise<UpdateLpResponse> {
+  try {
+    const { data } = await apiClient.patch<UpdateLpResponse>(`/v1/lps/${lpId}`, payload)
+    if (!data.status) {
+      throw new Error(data.message || 'LP 수정에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, 'LP 수정에 실패했습니다.'))
+  }
+}
+
+export async function deleteLp(lpId: number): Promise<DeleteLpResponse> {
+  try {
+    const { data } = await apiClient.delete<DeleteLpResponse>(`/v1/lps/${lpId}`)
+    if (!data.status) {
+      throw new Error(data.message || 'LP 삭제에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, 'LP 삭제에 실패했습니다.'))
   }
 }
 

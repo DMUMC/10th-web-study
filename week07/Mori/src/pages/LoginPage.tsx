@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { useLoginMutation } from '../queries/authMutations'
 import { AuthInput } from '../components/auth/AuthInput'
 import { AuthSocialButton } from '../components/auth/AuthSocialButton'
 import { loginFormSchema, type LoginFormValues } from '../schemas/auth'
@@ -11,13 +12,11 @@ import { loginFormSchema, type LoginFormValues } from '../schemas/auth'
 export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login, startGoogleLogin } = useAuth()
+  const { startGoogleLogin } = useAuth()
+  const loginMutation = useLoginMutation()
   const [apiError, setApiError] = useState<string | undefined>(
     (location.state as { oauthError?: string } | null)?.oauthError,
   )
-  const [submitting, setSubmitting] = useState(false)
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from
-    ?.pathname
 
   const {
     register,
@@ -63,21 +62,20 @@ export function LoginPage() {
 
         <form
           className="flex flex-col gap-3"
-          onSubmit={handleSubmit(async (values) => {
+          onSubmit={handleSubmit((values) => {
             setApiError(undefined)
-            setSubmitting(true)
-            try {
-              await login(values.email, values.password)
-              navigate(from ?? '/', { replace: true })
-            } catch (err) {
-              setApiError(
-                err instanceof Error
-                  ? err.message
-                  : '로그인에 실패했습니다.',
-              )
-            } finally {
-              setSubmitting(false)
-            }
+            loginMutation.mutate(
+              { email: values.email, password: values.password },
+              {
+                onError: (err) => {
+                  setApiError(
+                    err instanceof Error
+                      ? err.message
+                      : '로그인에 실패했습니다.',
+                  )
+                },
+              },
+            )
           })}
           noValidate
         >
@@ -104,10 +102,10 @@ export function LoginPage() {
           ) : null}
           <button
             type="submit"
-            disabled={!isValid || submitting}
+            disabled={!isValid || loginMutation.isPending}
             className="mt-2 w-full rounded-lg bg-zinc-800 py-3 text-[15px] font-bold text-zinc-500 transition duration-300 enabled:bg-main-pink enabled:text-white disabled:cursor-not-allowed"
           >
-            {submitting ? '로그인 중…' : '로그인'}
+            {loginMutation.isPending ? '로그인 중…' : '로그인'}
           </button>
         </form>
       </div>
