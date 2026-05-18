@@ -1,12 +1,31 @@
 import axios from 'axios'
 import { apiClient, getAxiosErrorMessage } from './client'
-import type { GetLpCommentsResponse, GetLpDetailResponse, GetLpsResponse } from './types'
+import type {
+  CreateLpPayload,
+  CreateLpResponse,
+  GetLpCommentsResponse,
+  GetLpDetailResponse,
+  GetLpsResponse,
+} from './types'
 
 export type GetLpsParams = {
   cursor?: number
   limit?: number
   search?: string
   order?: 'asc' | 'desc'
+}
+
+export async function createLp(payload: CreateLpPayload): Promise<CreateLpResponse> {
+  try {
+    const { data } = await apiClient.post<CreateLpResponse>('/v1/lps', payload)
+    if (!data.status) {
+      throw new Error(data.message || 'LP 생성에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, 'LP 생성에 실패했습니다.'))
+  }
 }
 
 export async function getLps(params: GetLpsParams = {}): Promise<GetLpsResponse> {

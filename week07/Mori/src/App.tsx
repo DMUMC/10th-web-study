@@ -5,7 +5,6 @@ import { AppChrome } from './components/AppChrome'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { MyPage } from './pages/MyPage'
-import { LpCreatePage } from './pages/LpCreatePage'
 import { LpDetailPage } from './pages/LpDetailPage'
 import { SignupPage } from './pages/SignupPage'
 import { GoogleCallbackPage } from './pages/GoogleCallbackPage'
@@ -23,9 +22,6 @@ function App() {
             <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/lp/:lpid" element={<LpDetailPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/lps/new" element={<LpCreatePage />} />
-            </Route>
             </Route>
           </Routes>
         </AppChrome>

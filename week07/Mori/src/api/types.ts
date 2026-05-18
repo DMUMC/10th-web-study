@@ -51,6 +51,33 @@ export interface CursorPagination<TItem> {
 
 export type GetLpsResponse = ApiEnvelope<CursorPagination<LpItem>>
 
+export interface CreateLpPayload {
+  title: string
+  content: string
+  thumbnail: string
+  tags: string[]
+  published: boolean
+}
+
+export interface CreatedLp {
+  id: number
+  title: string
+  content: string
+  thumbnail: string
+  published: boolean
+  authorId: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateLpResponse = ApiEnvelope<CreatedLp>
+
+export interface UploadImageData {
+  imageUrl: string
+}
+
+export type UploadImageResponse = ApiEnvelope<UploadImageData>
+
 export type GetLpDetailResponse = ApiEnvelope<LpDetail>
 
 export interface LpComment {

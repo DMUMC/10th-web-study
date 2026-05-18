@@ -4,6 +4,7 @@ import { clearAuthStorage, STORAGE_KEYS } from '../lib/tokens'
 
 type RetryableRequestConfig = {
   _retry?: boolean
+  _uploadFile?: File
 }
 
 export const apiClient = axios.create({
@@ -32,7 +33,7 @@ function storeTokens(accessToken: string, refreshToken: string) {
   localStorage.setItem(STORAGE_KEYS.REFRESH, refreshToken)
 }
 
-async function refreshAccessToken(): Promise<string> {
+export async function refreshAccessToken(): Promise<string> {
   const refreshToken = getStoredRefreshToken()
   if (!refreshToken) throw new Error('리프레시 토큰이 없습니다.')
 
@@ -98,6 +99,12 @@ apiClient.interceptors.response.use(
       const nextHeaders = AxiosHeaders.from(originalRequest.headers)
       nextHeaders.set('Authorization', `Bearer ${nextAccessToken}`)
       originalRequest.headers = nextHeaders
+
+      if (originalRequest._uploadFile instanceof File) {
+        const formData = new FormData()
+        formData.append('file', originalRequest._uploadFile)
+        originalRequest.data = formData
+      }
 
       return apiClient(originalRequest)
     } catch (refreshError) {
