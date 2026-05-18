@@ -7,7 +7,7 @@ export function lpDetailQueryKey(lpId: number) {
 
 export function useLpDetailQuery(lpId: number | null) {
   return useQuery({
-    queryKey: ['lp', lpId],
+    queryKey: lpId !== null ? lpDetailQueryKey(lpId) : ['lp', 'pending'],
     queryFn: () => {
       if (lpId === null) throw new Error('lpId가 올바르지 않습니다.')
       return getLpDetail(lpId)

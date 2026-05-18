@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useMyProfileQuery } from '../queries/myProfile'
 
 export function MyPage() {
-  const { ready, isAuthenticated, updateStoredUser } = useAuth()
+  const { ready, isAuthenticated } = useAuth()
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   const { data, isPending, isError, error, refetch } = useMyProfileQuery(
@@ -76,9 +76,6 @@ export function MyPage() {
         open={settingsOpen}
         profile={profile}
         onClose={() => setSettingsOpen(false)}
-        onUpdated={(updated) => {
-          updateStoredUser({ id: updated.id, name: updated.name })
-        }}
       />
     </main>
   )

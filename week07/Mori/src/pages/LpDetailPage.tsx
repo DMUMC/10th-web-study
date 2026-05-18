@@ -1,9 +1,10 @@
-import { Heart, Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ConfirmModal } from '../components/common/ConfirmModal'
 import { LpCommentsSection } from '../components/lp/LpCommentsSection'
 import { LpEditModal } from '../components/lp/LpEditModal'
+import { LpLikeButton } from '../components/lp/LpLikeButton'
 import { QueryErrorCard } from '../components/query/QueryStates'
 import { LpDetailSkeleton } from '../components/lp/LpDetailSkeleton'
 import { useAuth } from '../hooks/useAuth'
@@ -121,17 +122,7 @@ export function LpDetailPage() {
                 #{t.name}
               </span>
             ))}
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-xs text-white/50">좋아요 {lp.likes?.length ?? 0}</span>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white transition hover:bg-white/10"
-                title="좋아요 기능은 준비 중입니다."
-              >
-                <Heart className="h-4 w-4 text-main-pink" aria-hidden />
-                좋아요
-              </button>
-            </div>
+            <LpLikeButton lpId={lp.id} />
           </div>
         </div>
       </section>
