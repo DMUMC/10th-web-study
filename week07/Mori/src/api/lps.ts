@@ -1,11 +1,16 @@
 import axios from 'axios'
 import { apiClient, getAxiosErrorMessage } from './client'
 import type {
+  CreateCommentPayload,
+  CreateCommentResponse,
   CreateLpPayload,
   CreateLpResponse,
+  DeleteCommentResponse,
   GetLpCommentsResponse,
   GetLpDetailResponse,
   GetLpsResponse,
+  UpdateCommentPayload,
+  UpdateCommentResponse,
 } from './types'
 
 export type GetLpsParams = {
@@ -76,6 +81,63 @@ export async function getLpComments(
   } catch (err) {
     if (err instanceof Error && !axios.isAxiosError(err)) throw err
     throw new Error(getAxiosErrorMessage(err, '댓글을 불러오지 못했습니다.'))
+  }
+}
+
+export async function createComment(
+  lpId: number,
+  payload: CreateCommentPayload,
+): Promise<CreateCommentResponse> {
+  try {
+    const { data } = await apiClient.post<CreateCommentResponse>(
+      `/v1/lps/${lpId}/comments`,
+      payload,
+    )
+    if (!data.status) {
+      throw new Error(data.message || '댓글 등록에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '댓글 등록에 실패했습니다.'))
+  }
+}
+
+export async function updateComment(
+  lpId: number,
+  commentId: number,
+  payload: UpdateCommentPayload,
+): Promise<UpdateCommentResponse> {
+  try {
+    const { data } = await apiClient.patch<UpdateCommentResponse>(
+      `/v1/lps/${lpId}/comments/${commentId}`,
+      payload,
+    )
+    if (!data.status) {
+      throw new Error(data.message || '댓글 수정에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '댓글 수정에 실패했습니다.'))
+  }
+}
+
+export async function deleteComment(
+  lpId: number,
+  commentId: number,
+): Promise<DeleteCommentResponse> {
+  try {
+    const { data } = await apiClient.delete<DeleteCommentResponse>(
+      `/v1/lps/${lpId}/comments/${commentId}`,
+    )
+    if (!data.status) {
+      throw new Error(data.message || '댓글 삭제에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '댓글 삭제에 실패했습니다.'))
   }
 }
 

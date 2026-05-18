@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getLpComments } from '../api/lps'
+import { lpCommentsQueryKey } from './lpCommentMutations'
 
 export type LpCommentsOrder = 'asc' | 'desc'
 
@@ -8,7 +9,7 @@ export function useLpCommentsInfiniteQuery(
   order: LpCommentsOrder,
 ) {
   return useInfiniteQuery({
-    queryKey: ['lpComments', lpId, order],
+    queryKey: lpId === null ? ['lpComments', null, order] : lpCommentsQueryKey(lpId, order),
     enabled: lpId !== null,
     initialPageParam: 0,
     queryFn: ({ pageParam }) => {

@@ -92,6 +92,18 @@ export interface LpComment {
 
 export type GetLpCommentsResponse = ApiEnvelope<CursorPagination<LpComment>>
 
+export type CreateCommentPayload = {
+  content: string
+}
+
+export type UpdateCommentPayload = {
+  content: string
+}
+
+export type CreateCommentResponse = ApiEnvelope<LpComment>
+export type UpdateCommentResponse = ApiEnvelope<LpComment>
+export type DeleteCommentResponse = ApiEnvelope<{ message: string }>
+
 export interface SignInData {
   id: number
   name: string
