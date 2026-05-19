@@ -65,15 +65,14 @@ const MyPage = () => {
             <div className={"mt-5 grid grid-cols-4 gap-4"}>
                 {/* 검색: <input value={search} onChange={(e) => setSearch(e.target.value)} /> */}
                 {lpList?.data.map((lp) => (
-                    <>
+                    <div
+                        key={lp.id}
+                        onClick={() => navigate(`/lp/${lp.id}`)}
+                        className="relative group w-52 h-52 overflow-hidden rounded-xl"
+                    >
+                        <img src={lp.thumbnail} alt={lp.title} className="w-50 h-50" />
                         <div
-                            key={lp.id}
-                            onClick={() => navigate(`/lp/${lp.id}`)}
-                            className="relative group w-50 h-50 overflow-hidden rounded-xl"
-                        >
-                            <img src={lp.thumbnail} alt={lp.title} className="w-50 h-50" />
-                            <div
-                                className="
+                            className="
                                  absolute inset-0
                                  bg-black/60
                                  opacity-0
@@ -84,15 +83,14 @@ const MyPage = () => {
                                  p-4
                                  text-white
                                 "
-                            >
-                                <h3 className="text-lg font-bold">{lp.title}</h3>
-                                <p className="text-sm">{new Date(lp.updatedAt).toLocaleDateString()}</p>
-                                <p className="text-sm">{lp.likes?.length ?? 0}</p>
-                            </div>
+                        >
+                            <h3 className="text-lg font-bold">{lp.title}</h3>
+                            <p className="text-sm">{new Date(lp.updatedAt).toLocaleDateString()}</p>
+                            <p className="text-sm">{lp.likes?.length ?? 0}</p>
                         </div>
+                    </div>
 
 
-                    </>
                 ))}
 
 

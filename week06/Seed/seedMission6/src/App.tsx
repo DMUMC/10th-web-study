@@ -40,11 +40,6 @@ const router = createBrowserRouter([
   }
 ]);
 
-// const protedRoutes: RouteObject[] = [
-
-// ]
-
-// const router = createBrowserRouter([...publicRoutes, ...ProtectedLayout]);
 
 
 export const queryClient = new QueryClient({
