@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { apiClient, getAxiosErrorMessage } from './client'
-import type { GetLpDetailResponse, GetLpsResponse } from './types'
+import type { GetLpCommentsResponse, GetLpDetailResponse, GetLpsResponse } from './types'
 
 export type GetLpsParams = {
   cursor?: number
@@ -32,6 +32,31 @@ export async function getLpDetail(lpId: number): Promise<GetLpDetailResponse> {
   } catch (err) {
     if (err instanceof Error && !axios.isAxiosError(err)) throw err
     throw new Error(getAxiosErrorMessage(err, 'LP 상세를 불러오지 못했습니다.'))
+  }
+}
+
+export type GetLpCommentsParams = {
+  cursor?: number
+  limit?: number
+  order?: 'asc' | 'desc'
+}
+
+export async function getLpComments(
+  lpId: number,
+  params: GetLpCommentsParams = {},
+): Promise<GetLpCommentsResponse> {
+  try {
+    const { data } = await apiClient.get<GetLpCommentsResponse>(
+      `/v1/lps/${lpId}/comments`,
+      { params },
+    )
+    if (!data.status) {
+      throw new Error(data.message || '댓글을 불러오지 못했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '댓글을 불러오지 못했습니다.'))
   }
 }
 
