@@ -1,20 +1,40 @@
-import { Outlet } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import FloatingButton from "../components/FloatingButton";
+import LpCreateModal from "../components/LpCreateModal";
+import { useAuth } from "../context/AuthContext"; 
 
 const HomeLayout = () => {
-    return (
-        <div className="h-dvh flex flex-col">
-            <nav className="HomeLayout__nav p-4">
-                <span className="HomeLayout__nav-logo">돌려돌려LP판</span>
-                <div className="HomeLayout__nav-btn">
-                    <button>로그인</button><button className="member">회원가입</button>
-                </div>
-            </nav>
-            <main className="flex-1 flex items-center justify-center">
-                <Outlet />
-            </main>
-            <footer>푸터</footer>
-        </div>
-    )
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { accessToken } = useAuth(); 
+  const navigate = useNavigate();
+
+  const handleFloatingButtonClick = () => {
+    if (!accessToken) {
+      alert("LP를 등록하려면 로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  return (
+    <div className="flex flex-col h-screen w-full bg-[#121212] text-white overflow-hidden">
+      <Navbar /> 
+      <div className="flex flex-1 w-full overflow-hidden relative">
+        <Sidebar /> 
+        <main className="flex-1 overflow-y-auto p-6 scrollbar-hide relative">
+          <Outlet />
+        </main>
+      </div>
+
+      <FloatingButton onClick={handleFloatingButtonClick} />
+
+      {isModalOpen && <LpCreateModal onClose={() => setIsModalOpen(false)} />}
+    </div>
+  );
 };
 
 export default HomeLayout;

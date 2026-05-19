@@ -1,43 +1,72 @@
-// App.tsx
-import { createBrowserRouter, RouteObject, RouterProvider } from "react-router-dom";
-import "./App.css";
-import HomePage from "./pages/HomePage";
-import NotFoundPage from "./pages/NotFoundPage";
-import HomeLayout from "./Layouts/HomeLayout";
-import SignupPage from "./pages/SignupPage";
-import MyPage from "./pages/MyPage";
-import SignupPasswordPage from "./pages/SignupPasswordPage";
-import { AuthProvider } from "./context/AuthContext";
-import LoginPage from "./pages/LoginPage";
-import GoogleLoginRedirectPage from "./pages/GoogleLoginRedirectPage";
+import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from './context/AuthContext';
+import Homepage from './pages/Homepage';
+import Loginpage from './pages/Loginpage';
+import SignUpPage from './pages/SignUpPage';
+import MyPage from './pages/MyPage';
+import CreatePage from './pages/CreatePage';
+import LpDetailPage from './pages/LpDetailPage';
+import GoogleCallback from './pages/GoogleCallback';
+import NotFoundPage from './pages/NotFoundPage';
+import ProtectedLayout from './components/ProtectedRoute'; 
+import HomeLayout from './layouts/HomeLayout';
+import { SidebarProvider } from './context/SidebarContext';
 
-// ✅ AuthProvider로 감싼 Layout 컴포넌트
-const AuthLayout = () => {
-  return (
-    <AuthProvider>
-      <HomeLayout />
-    </AuthProvider>
-  );
-};
-
-const router = createBrowserRouter([
+const routes: RouteObject[] = [
   {
-    path: "/",
-    element: <AuthLayout />,  // ✅ Router 안에 AuthProvider가 위치
+    path: '/',
+    element: <HomeLayout />,
     errorElement: <NotFoundPage />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "signup", element: <SignupPage /> },
-      { path: "signup/password", element: <SignupPasswordPage /> },
-      { path: "my", element: <MyPage /> },  // ✅ protectedRoutes도 통합
-      { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> }
+      {
+        index: true,
+        element: <Homepage />,
+      },
+      {
+        path: 'lp/:lpid',
+        element: <LpDetailPage />,
+      },
+      {
+        element: <ProtectedLayout />,
+        children: [
+          {
+            path: 'my',
+            element: <MyPage />,
+          },
+          {
+            path: 'create',
+            element: <CreatePage />,
+          },
+        ],
+      },
     ],
-  }
-]);
+  },
+  { path: '/login', element: <Loginpage /> },
+  { path: '/signup', element: <SignUpPage /> },
+  { path: '/v1/auth/google/callback', element: <GoogleCallback /> },
+];
+
+const router = createBrowserRouter(routes);
+
+export const queryClient: QueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+    },
+  },
+});
 
 function App() {
-  return <RouterProvider router={router} />;  // ✅ 깔끔하게 RouterProvider만
+  return ( 
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>   
+        <SidebarProvider> 
+          <RouterProvider router={router} />
+        </SidebarProvider>
+      </AuthProvider>     
+    </QueryClientProvider>
+  );
 }
 
 export default App;

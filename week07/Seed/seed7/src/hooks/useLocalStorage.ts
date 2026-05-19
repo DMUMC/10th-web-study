@@ -1,27 +1,37 @@
 export const useLocalStorage = (key: string) => {
     const setItem = (value: unknown) => {
         try {
-            window.localStorage.setItem(key, JSON.stringify(value));
+            const valueToStore = typeof value === "string" ? value : JSON.stringify(value);
+            window.localStorage.setItem(key, valueToStore);
         } catch (error) {
             console.log(error);
         }
     };
+
     const getItem = () => {
+    try {
+        const item = window.localStorage.getItem(key);
+        if (!item) return null;
+        
         try {
-            const item = window.localStorage.getItem(key);
-
-            return item ? JSON.parse(item) : null;
-        } catch (e) {
-            console.log(e);
+            return JSON.parse(item); 
+        } catch {
+            return item; 
         }
-    };
-
-    const removeItem = () => {
-        try {
-            window.localStorage.removeItem(key);
-        } catch (error) {
-            console.log(error);
-        }
+    } catch (e) {
+        console.log(e);
+        return null;
     }
-    return { setItem, getItem, removeItem };
-}
+};
+
+   const removeItem = () =>{
+    try{
+        window.localStorage.removeItem(key);
+
+    }catch(error){
+        console.log(error);
+    }
+   }
+
+   return {setItem, getItem, removeItem}
+};
