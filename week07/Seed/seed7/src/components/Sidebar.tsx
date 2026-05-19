@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
-import { useDeleteAccount } from "../hooks/mutations/useDeleteAccount";
+import { useDeleteAccount } from "../hooks/diverse/useDeleteAccount";
 
 const Sidebar = () => {
   const { isOpen, closeSidebar } = useSidebar();

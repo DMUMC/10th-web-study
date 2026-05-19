@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { useGetLpComments } from "../hooks/queries/useGetLpComments";
-import { useCommentMutation } from "../hooks/mutations/useCommentMutation";
+import { useCommentMutation } from "../hooks/diverse/useCommentMutation";
 import { PAGINATION_ORDER } from "../enums/common";
 
 interface CommentSectionProps {
@@ -56,13 +56,13 @@ const CommentSection = ({ lpId }: CommentSectionProps) => {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-white">댓글</h2>
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => setOrder(PAGINATION_ORDER.desc)}
             className={`px-3 py-1 text-xs rounded ${order === PAGINATION_ORDER.desc ? "bg-white text-black" : "bg-gray-800 text-gray-400"}`}
           >
             최신순
           </button>
-          <button 
+          <button
             onClick={() => setOrder(PAGINATION_ORDER.asc)}
             className={`px-3 py-1 text-xs rounded ${order === PAGINATION_ORDER.asc ? "bg-white text-black" : "bg-gray-800 text-gray-400"}`}
           >
@@ -72,15 +72,15 @@ const CommentSection = ({ lpId }: CommentSectionProps) => {
       </div>
 
       <div className="flex gap-2">
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={commentInput}
           onChange={(e) => setCommentInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit()}
-          placeholder="댓글을 입력해주세요" 
+          placeholder="댓글을 입력해주세요"
           className="flex-1 bg-gray-900 border border-gray-800 rounded-md px-4 py-2 focus:outline-none focus:border-[#FF007A] text-sm text-white"
         />
-        <button 
+        <button
           disabled={isPending}
           onClick={handleCommentSubmit}
           className="bg-gray-700 px-6 py-2 rounded-md font-bold text-sm hover:bg-[#FF007A] text-white transition-colors disabled:opacity-50"
@@ -99,9 +99,9 @@ const CommentSection = ({ lpId }: CommentSectionProps) => {
               <div className="flex-1 space-y-1">
                 <div className="flex justify-between items-start">
                   <span className="text-sm font-bold text-white">{comment.author?.name}</span>
-                  
+
                   <div className="relative">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setOpenMenuId(openMenuId === comment.id ? null : comment.id);
@@ -113,14 +113,14 @@ const CommentSection = ({ lpId }: CommentSectionProps) => {
 
                     {openMenuId === comment.id && (
                       <div className="absolute right-0 mt-1 w-24 bg-gray-800 border border-gray-700 rounded shadow-2xl z-[100] overflow-hidden">
-                        <button 
+                        <button
                           onClick={() => startEdit(comment.id, comment.content)}
                           className="w-full text-left px-4 py-2 text-xs text-white hover:bg-gray-700 border-b border-gray-700"
                         >
                           수정
                         </button>
-                        <button 
-                          onClick={() => { if(window.confirm("삭제하시겠습니까?")) deleteComment(comment.id); }}
+                        <button
+                          onClick={() => { if (window.confirm("삭제하시겠습니까?")) deleteComment(comment.id); }}
                           className="w-full text-left px-4 py-2 text-xs text-red-500 hover:bg-gray-700"
                         >
                           삭제
@@ -132,7 +132,7 @@ const CommentSection = ({ lpId }: CommentSectionProps) => {
 
                 {editingId === comment.id ? (
                   <div className="flex gap-2 mt-2">
-                    <input 
+                    <input
                       autoFocus
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}

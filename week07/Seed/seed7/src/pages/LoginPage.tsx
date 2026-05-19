@@ -4,7 +4,7 @@ import { vaildateSignin, type UserSigninInformation } from '../utils/validate'
 import UserInput from '../components/UserInput'
 import { useAuth } from '../context/AuthContext'
 import { useEffect } from 'react'
-import { useSignin } from '../hooks/mutations/useSignin'
+import { useSignin } from '../hooks/diverse/useSignin'
 
 const Loginpage = () => {
     const { accessToken } = useAuth()

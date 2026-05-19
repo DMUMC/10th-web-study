@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useGetMyInfo } from '../hooks/queries/useGetMyInfo'
 import { useSidebar } from '../context/SidebarContext'
-import { useLogout } from '../hooks/mutations/useLogout'
+import { useLogout } from '../hooks/diverse/useLogout'
 
 const Navbar = () => {
     const { accessToken } = useAuth()

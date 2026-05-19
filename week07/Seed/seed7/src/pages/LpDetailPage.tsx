@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import useGetLpDetail from "../hooks/queries/useGetLpDetail";
 import { useGetMyInfo } from "../hooks/queries/useGetMyInfo";
 import CommentSection from "../components/CommentSection";
-import { useLpLike } from '../hooks/mutations/useLpLike';
-import { useLpDelete } from '../hooks/mutations/useLpDelete';
+import { useLpLike } from '../hooks/diverse/useLpLike';
+import { useLpDelete } from '../hooks/diverse/useLpDelete';
 import { axiosInstance } from '../apis/axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '../constans/key';
@@ -175,11 +175,10 @@ const LpDetailPage = () => {
                 <button
                     onClick={handleLikeToggle}
                     disabled={like.isPending || unlike.isPending}
-                    className={`flex items-center gap-2 text-sm px-4 py-2 rounded-full border transition-colors disabled:opacity-50 ${
-                        isLiked
+                    className={`flex items-center gap-2 text-sm px-4 py-2 rounded-full border transition-colors disabled:opacity-50 ${isLiked
                             ? 'border-[#FF007A] text-[#FF007A]'
                             : 'border-gray-600 text-gray-400 hover:border-[#FF007A] hover:text-[#FF007A]'
-                    }`}
+                        }`}
                 >
                     {isLiked ? '❤️' : '🤍'} {likeCount}
                 </button>

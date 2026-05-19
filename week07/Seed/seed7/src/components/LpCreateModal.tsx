@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { usePostLp } from "../hooks/mutations/usePostLp";
+import { usePostLp } from "../hooks/diverse/usePostLp";
 
 interface LpCreateModalProps {
   onClose: () => void;
@@ -55,11 +55,11 @@ const LpCreateModal = ({ onClose }: LpCreateModalProps) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose}>
       <div className="w-full max-w-md bg-[#1e1e1e] rounded-2xl p-8 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
-        
+
         <h2 className="text-xl font-bold mb-6 text-center text-[#FF007A]">새 LP 등록</h2>
 
         <div className="space-y-4">
-          <div 
+          <div
             onClick={() => fileInputRef.current?.click()}
             className="w-48 h-48 mx-auto bg-[#2a2a2a] rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center cursor-pointer overflow-hidden hover:border-[#FF007A] transition-colors"
           >
@@ -71,23 +71,23 @@ const LpCreateModal = ({ onClose }: LpCreateModalProps) => {
           </div>
           <input type="file" hidden ref={fileInputRef} onChange={handleImageChange} accept="image/*" />
 
-          <input 
-            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF007A] text-white" 
+          <input
+            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF007A] text-white"
             placeholder="LP Name"
             value={lpName}
             onChange={(e) => setLpName(e.target.value)}
           />
 
-          <textarea 
-            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF007A] h-24 resize-none text-white" 
+          <textarea
+            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF007A] h-24 resize-none text-white"
             placeholder="LP Content"
             value={lpContent}
             onChange={(e) => setLpContent(e.target.value)}
           />
 
           <div className="flex gap-2">
-            <input 
-              className="flex-1 bg-[#2a2a2a] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF007A] text-white" 
+            <input
+              className="flex-1 bg-[#2a2a2a] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF007A] text-white"
               placeholder="LP Tag"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
@@ -98,7 +98,7 @@ const LpCreateModal = ({ onClose }: LpCreateModalProps) => {
                 }
               }}
             />
-            <button 
+            <button
               type="button"
               onClick={handleAddTag}
               className="bg-[#FF007A] px-4 rounded-xl font-bold hover:bg-[#ff1a87] text-white"
@@ -111,7 +111,7 @@ const LpCreateModal = ({ onClose }: LpCreateModalProps) => {
             {tags.map((tag) => (
               <span key={tag} className="flex items-center gap-1 bg-[#333] text-gray-300 px-3 py-1 rounded-full text-sm border border-gray-600">
                 #{tag}
-                <button 
+                <button
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
                   className="text-gray-500 hover:text-[#FF007A] ml-1"
@@ -122,7 +122,7 @@ const LpCreateModal = ({ onClose }: LpCreateModalProps) => {
             ))}
           </div>
 
-          <button 
+          <button
             type="button"
             disabled={isPending}
             onClick={handleSubmit}
