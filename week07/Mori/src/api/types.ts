@@ -86,6 +86,10 @@ export type UploadImageResponse = ApiEnvelope<UploadImageData>
 
 export type GetLpDetailResponse = ApiEnvelope<LpDetail>
 
+export type LikeLpResponse = ApiEnvelope<LpLike>
+
+export type UnlikeLpResponse = ApiEnvelope<null>
+
 export interface LpComment {
   id: number
   content: string

@@ -8,14 +8,12 @@ type ProfileEditModalProps = {
   open: boolean
   profile: UserProfile
   onClose: () => void
-  onUpdated: (profile: UserProfile) => void
 }
 
 export function ProfileEditModal({
   open,
   profile,
   onClose,
-  onUpdated,
 }: ProfileEditModalProps) {
   const titleId = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -46,10 +44,7 @@ export function ProfileEditModal({
   }, [onClose, resetForm])
 
   const updateMutation = useUpdateProfileMutation({
-    onSuccess: (updated) => {
-      onUpdated(updated)
-      closeModal()
-    },
+    onSuccess: closeModal,
   })
 
   useEffect(() => {
@@ -100,6 +95,7 @@ export function ProfileEditModal({
         bio,
         imageFile,
         currentAvatar: avatarPreview?.startsWith('blob:') ? profile.avatar : avatarPreview,
+        optimisticAvatar: avatarPreview,
       },
       {
         onError: (err) => {

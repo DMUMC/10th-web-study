@@ -10,6 +10,8 @@ import type {
   GetLpCommentsResponse,
   GetLpDetailResponse,
   GetLpsResponse,
+  LikeLpResponse,
+  UnlikeLpResponse,
   UpdateCommentPayload,
   UpdateCommentResponse,
   UpdateLpPayload,
@@ -75,6 +77,32 @@ export async function deleteLp(lpId: number): Promise<DeleteLpResponse> {
   } catch (err) {
     if (err instanceof Error && !axios.isAxiosError(err)) throw err
     throw new Error(getAxiosErrorMessage(err, 'LP 삭제에 실패했습니다.'))
+  }
+}
+
+export async function likeLp(lpId: number): Promise<LikeLpResponse> {
+  try {
+    const { data } = await apiClient.post<LikeLpResponse>(`/v1/lps/${lpId}/likes`, {})
+    if (!data.status) {
+      throw new Error(data.message || '좋아요에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '좋아요에 실패했습니다.'))
+  }
+}
+
+export async function unlikeLp(lpId: number): Promise<UnlikeLpResponse> {
+  try {
+    const { data } = await apiClient.delete<UnlikeLpResponse>(`/v1/lps/${lpId}/likes`)
+    if (!data.status) {
+      throw new Error(data.message || '좋아요 취소에 실패했습니다.')
+    }
+    return data
+  } catch (err) {
+    if (err instanceof Error && !axios.isAxiosError(err)) throw err
+    throw new Error(getAxiosErrorMessage(err, '좋아요 취소에 실패했습니다.'))
   }
 }
 
