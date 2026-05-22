@@ -6,8 +6,11 @@ import { LpList } from '../components/lp/LpList'
 import { LpListSkeleton } from '../components/lp/LpListSkeleton'
 import { QueryErrorCard } from '../components/query/QueryStates'
 import { useDebounce } from '../hooks/useDebounce'
+import { useThrottle } from '../hooks/useThrottle'
 import { useSearchFilter } from '../hooks/useSearchFilter'
 import { useLpsInfiniteQuery, type LpListSort } from '../queries/lps'
+
+const LOAD_MORE_THROTTLE_MS = 1000
 
 export function LandingPage() {
   const { searchQuery } = useSearchFilter()
@@ -16,7 +19,10 @@ export function LandingPage() {
   const isWhitespaceOnly = debouncedQuery.length > 0 && trimmedQuery.length === 0
 
   const [sort, setSort] = useState<LpListSort>('desc')
+  const [sentinelInView, setSentinelInView] = useState(false)
+  const throttledSentinelInView = useThrottle(sentinelInView, LOAD_MORE_THROTTLE_MS)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const wasIntersectingRef = useRef(false)
 
   const {
     data,
@@ -38,22 +44,37 @@ export function LandingPage() {
 
   useEffect(() => {
     const node = sentinelRef.current
-    if (!node) return
+    if (!node || isLoading) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const first = entries[0]
-        if (!first?.isIntersecting) return
-        if (!hasNextPage) return
-        if (isFetchingNextPage) return
-        void fetchNextPage()
+        const intersecting = entries[0]?.isIntersecting ?? false
+
+        if (!intersecting) {
+          wasIntersectingRef.current = false
+          setSentinelInView(false)
+          return
+        }
+
+        // sentinel이 화면에 새로 들어올 때만 로드 트리거 (계속 보이는 동안 반복 X)
+        if (wasIntersectingRef.current) return
+        wasIntersectingRef.current = true
+        setSentinelInView(true)
       },
       { root: null, rootMargin: '300px', threshold: 0 },
     )
 
     observer.observe(node)
     return () => observer.disconnect()
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, isLoading])
+  }, [isLoading])
+
+  useEffect(() => {
+    if (!throttledSentinelInView) return
+    if (!hasNextPage || isFetchingNextPage) return
+
+    void fetchNextPage()
+    setSentinelInView(false)
+  }, [throttledSentinelInView, fetchNextPage, hasNextPage, isFetchingNextPage])
 
   return (
     <main className="relative flex min-h-0 flex-1 flex-col items-center gap-6 bg-black px-4 py-12">
