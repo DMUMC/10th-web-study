@@ -1,28 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import type { LpItem } from '../api/types'
-import { getLps, type GetLpsParams } from '../api/lps'
 import { NewLpFloatingButton } from '../components/lp/NewLpFloatingButton'
 import { LpList } from '../components/lp/LpList'
 import { LpListSkeleton } from '../components/lp/LpListSkeleton'
 import { QueryErrorCard } from '../components/query/QueryStates'
-import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { useDebounce } from '../hooks/useDebounce'
 import { useSearchFilter } from '../hooks/useSearchFilter'
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import type { LpListSort } from '../queries/lps'
+import { useLpsInfiniteQuery, type LpListSort } from '../queries/lps'
 
 export function LandingPage() {
   const { searchQuery } = useSearchFilter()
-  const debouncedSearch = useDebouncedValue(searchQuery.trim(), 300)
+  const debouncedQuery = useDebounce(searchQuery, 300)
+  const trimmedQuery = debouncedQuery.trim()
+  const isWhitespaceOnly = debouncedQuery.length > 0 && trimmedQuery.length === 0
+
   const [sort, setSort] = useState<LpListSort>('desc')
-
-  const queryClient = useQueryClient()
   const sentinelRef = useRef<HTMLDivElement | null>(null)
-
-  // search는 queryKey에 포함되지 않으므로, 값이 바뀔 때마다 쿼리를 새로 불러옵니다.
-  useEffect(() => {
-    void queryClient.invalidateQueries({ queryKey: ['lps', sort] })
-  }, [debouncedSearch, queryClient, sort])
 
   const {
     data,
@@ -33,26 +27,7 @@ export function LandingPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['lps', sort],
-    initialPageParam: 0,
-    queryFn: ({ pageParam }) => {
-      const cursor = typeof pageParam === 'number' ? pageParam : 0
-      const params: GetLpsParams = {
-        cursor,
-        limit: 10,
-        order: sort,
-        search: debouncedSearch || undefined,
-      }
-      return getLps(params)
-    },
-    getNextPageParam: (lastPage) => {
-      if (!lastPage.data.hasNext) return undefined
-      return lastPage.data.nextCursor
-    },
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
-  })
+  } = useLpsInfiniteQuery(sort, debouncedQuery, !isWhitespaceOnly)
 
   const items: LpItem[] = data?.pages.flatMap((page) => page.data.data) ?? []
   const isLoading = isPending
