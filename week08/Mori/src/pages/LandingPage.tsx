@@ -23,6 +23,7 @@ export function LandingPage() {
   const throttledSentinelInView = useThrottle(sentinelInView, LOAD_MORE_THROTTLE_MS)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const wasIntersectingRef = useRef(false)
+  const loadHandledRef = useRef(false)
 
   const {
     data,
@@ -69,11 +70,15 @@ export function LandingPage() {
   }, [isLoading])
 
   useEffect(() => {
-    if (!throttledSentinelInView) return
+    if (!throttledSentinelInView) {
+      loadHandledRef.current = false
+      return
+    }
+    if (loadHandledRef.current) return
     if (!hasNextPage || isFetchingNextPage) return
 
+    loadHandledRef.current = true
     void fetchNextPage()
-    setSentinelInView(false)
   }, [throttledSentinelInView, fetchNextPage, hasNextPage, isFetchingNextPage])
 
   return (

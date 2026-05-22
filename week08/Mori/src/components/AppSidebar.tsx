@@ -39,27 +39,26 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
   return (
     <>
       <div
-        className={
-          open
-            ? 'pointer-events-auto fixed inset-0 z-40'
-            : 'pointer-events-none invisible fixed inset-0 z-40'
-        }
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ease-out ${
+          open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        }`}
         aria-hidden={!open}
       >
         <div
           role="presentation"
-          className={
-            `${HEADER_LEAVE_TOP} absolute inset-x-0 bottom-0 cursor-default bg-black/60 transition-opacity ` +
-            (open ? 'opacity-100' : 'opacity-0')
-          }
+          className={`${HEADER_LEAVE_TOP} absolute inset-x-0 bottom-0 cursor-default bg-black/60 transition-opacity duration-300 ease-out ${
+            open ? 'opacity-100' : 'opacity-0'
+          }`}
           onClick={onClose}
         />
         <aside
           id="app-sidebar-panel"
-          className={
-            `${HEADER_LEAVE_TOP} absolute bottom-0 left-0 flex h-[calc(100dvh-3.5rem)] w-72 max-w-[min(85vw,18rem)] flex-col border-r border-white/10 bg-zinc-900 px-4 pb-8 pt-6 shadow-xl transition-transform duration-200 ease-out ` +
-            (open ? 'translate-x-0' : '-translate-x-full')
-          }
+          role="dialog"
+          aria-modal={open}
+          aria-hidden={!open}
+          className={`${HEADER_LEAVE_TOP} absolute bottom-0 left-0 flex h-[calc(100dvh-3.5rem)] w-72 max-w-[min(85vw,18rem)] flex-col border-r border-white/10 bg-zinc-900 px-4 pb-8 pt-6 shadow-xl transition-transform duration-300 ease-out ${
+            open ? 'translate-x-0' : '-translate-x-full'
+          }`}
         >
           <p className="mb-2 border-b border-white/10 pb-3 text-xs font-semibold uppercase tracking-wide text-white/50">
             메뉴
