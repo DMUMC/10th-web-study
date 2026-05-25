@@ -1,51 +1,89 @@
-import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useGetMyInfo } from '../hooks/queries/useGetMyInfo'
-import { useSidebar } from '../context/SidebarContext'
-import { useLogout } from '../hooks/diverse/useLogout'
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getMyInfo } from "../apis/auth";
+import { ResponseMyInfoDto } from "../types/auth";
+import Sidebar from "./Sidevar";
+import { is } from "zod/v4/locales";
+import useLogout from "../hooks/mutations/useLogout";
 
 const Navbar = () => {
-    const { accessToken } = useAuth()
-    const { data: userData } = useGetMyInfo()
-    const { toggleSidebar } = useSidebar()
-    const { mutate: logout, isPending } = useLogout()
+    const { accessToken } = useAuth();
+    console.log(accessToken);
+    const navigate = useNavigate();
+    // const { logout } = useAuth();
+    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [modal, setModal] = useState(false);
 
-    return (
-        <nav className="h-16 bg-[#121212] border-b border-gray-800 flex items-center justify-between px-6 sticky top-0 z-50">
-            <div className="flex items-center gap-4">
-                <button onClick={toggleSidebar} className="text-white hover:text-[#FF007A] transition-colors p-2">
-                    <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7.94971 11.9497H39.9497" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M7.94971 23.9497H39.9497" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M7.94971 35.9497H39.9497" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </button>
-                <Link to="/" className="text-[#FF007A] text-xl font-bold">돌려돌려LP판</Link>
-            </div>
-            <div className="flex items-center gap-6">
-                <button className="text-xl text-white">🔍</button>
-                {accessToken ? (
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium text-white">
-                            <span className="text-gray-400">{userData?.data?.name || '사용자'}</span>님 반갑습니다.
-                        </span>
-                        <button
-                            onClick={() => logout()}
-                            disabled={isPending}
-                            className="text-sm text-gray-300 hover:underline disabled:opacity-50"
-                        >
-                            {isPending ? '처리 중...' : '로그아웃'}
+    //로그아웃
+    const { mutate: logout, isPending: isLoggingOut } = useLogout();
+
+
+
+    // const handleLogout = async () => {
+    //     await logout();
+    //     navigate("/");
+    // }
+
+    //accessToken이 변할 때마다 실행됨
+    useEffect(() => {
+        const getData = async () => {
+
+            if (!accessToken) {
+                setData(null);
+                return;
+            }
+            const response = await getMyInfo();
+            console.log(response);
+
+            setData(response);
+        }
+        getData();
+    }, [accessToken])
+
+    return <nav className="bg-white dark:bg-gray-900 shadow-md fixed w-full z-10">
+        <div className="flex items-center justify-between p-4">
+            <Sidebar
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+            />
+            <button onClick={() => setIsOpen(!isOpen)}>
+                <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M7.95 11.95h32m-32 12h32m-32 12h32" /></svg>
+            </button>
+            <Link to="/" className="text-xl font-bold text-gray-900 dark:text-white">
+                돌려돌려LP판
+            </Link>
+
+            <div className="space-x-6">
+                <Link to={"/search"} className="text-gray-700 dark:text-gray-300 hover:text-blue-500">
+                    검색
+                </Link>
+                {!accessToken && (
+                    <>
+                        <Link to={"/login"} className="text-gray-700 dark:text-gray-300 hover:text-blue-500">
+                            로그인
+                        </Link>
+                        <Link to={"/signup"} className="text-gray-700 dark:text-gray-300 hover:text-blue-500">
+                            회원가입
+                        </Link>
+                    </>
+                )}
+                {accessToken && (
+                    <>
+                        <span> {data?.data?.name}님 환영합니다.</span>
+                        <button onClick={() => logout()}
+                            disabled={isLoggingOut}
+                            className="text-gray-700 dark:text-gray-300 hover:text-blue-500">
+                            {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
                         </button>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-4 text-white">
-                        <Link to="/login" className="text-sm hover:underline">로그인</Link>
-                        <Link to="/signup" className="bg-[#FF007A] px-4 py-2 rounded-md text-sm font-bold text-white">회원가입</Link>
-                    </div>
+
+                    </>
                 )}
             </div>
-        </nav>
-    )
-}
 
-export default Navbar
+        </div>
+    </nav>
+}
+export default Navbar;

@@ -1,186 +1,350 @@
-import { useState } from 'react'
 import { useParams } from "react-router-dom";
-import useGetLpDetail from "../hooks/queries/useGetLpDetail";
-import { useGetMyInfo } from "../hooks/queries/useGetMyInfo";
-import CommentSection from "../components/CommentSection";
-import { useLpLike } from '../hooks/diverse/useLpLike';
-import { useLpDelete } from '../hooks/diverse/useLpDelete';
-import { axiosInstance } from '../apis/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEY } from '../constans/key';
-import { type Likes, type Tag } from '../types/lp';
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
+import { PAGINATION_ORDER } from "../enums/common.ts";
+import useGetLp from "../hooks/queries/useGetLp.ts";
+import useInfiniteLpComments from "../hooks/queries/useInfiniteLpComments.ts";
+import { CommentSkeletonList } from "../components/CommentSkeleton.tsx";
+import { useQueryClient } from "@tanstack/react-query";
+import { createComment, updateLp } from "../apis/lp.ts";
+import useUpdateLp from "../hooks/mutations/useUpdateLp.ts";
 
-const LpDetailPage = () => {
-    const { lpid } = useParams<{ lpid: string }>();
-    const { data: detailData, isLoading: isDetailLoading } = useGetLpDetail(lpid || "");
-    const { data: myInfoData } = useGetMyInfo();
-    const { like, unlike } = useLpLike(lpid || "");
-    const { mutate: deleteLp, isPending: isDeleting } = useLpDelete(lpid || "");
-    const queryClient = useQueryClient();
+function LpDetailPage() {
+  const { lpId } = useParams();
+  const numericLpId = Number(lpId);
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [editTitle, setEditTitle] = useState("");
-    const [editContent, setEditContent] = useState("");
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const queryClient = useQueryClient();
 
-    const lp = detailData?.data;
-    const myId = myInfoData?.data?.id;
-    const isOwner = myId !== undefined && lp?.authorId !== undefined && myId === lp.authorId;
-    const isLiked = lp?.likes?.some((like: Likes) => like.userId === myId);
+  // 댓글
+  const [order, setOrder] = useState<PAGINATION_ORDER>(
+    PAGINATION_ORDER.desc
+  );
 
-    const updateLp = useMutation({
-        mutationFn: async () => {
-            const { data } = await axiosInstance.patch(`/v1/lps/${lpid}`, {
-                title: editTitle,
-                content: editContent,
-                thumbnail: lp?.thumbnail,
-                tags: lp?.tags?.map((tag: Tag) => tag.name) ?? [],
-                published: lp?.published ?? true,
-            });
-            return data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEY.lp, lpid] });
-            setIsEditing(false);
-        },
-        onError: (error: any) => alert(error.response?.data?.message || '수정 실패')
-    });
+  const [commentInput, setCommentInput] = useState("");
+  const [touched, setTouched] = useState(false);
 
-    const handleEditStart = () => {
-        setEditTitle(lp?.title || "");
-        setEditContent(lp?.content || "");
-        setIsEditing(true);
-    };
+  // 수정 상태
+  const [isEdit, setIsEdit] = useState(false);
 
-    const handleLikeToggle = () => {
-        if (isLiked) unlike.mutate();
-        else like.mutate();
-    };
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
 
-    if (isDetailLoading) {
-        return <div className="max-w-4xl mx-auto p-20 text-center animate-pulse text-white">상세 정보를 불러오는 중...</div>;
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const { mutate: updateLpMutate } = useUpdateLp(numericLpId);
+
+
+  // LP 상세 조회
+  const { data: lp, isPending: lpPending } = useGetLp(numericLpId);
+
+  // 수정 데이터 초기화
+  useEffect(() => {
+    if (lp?.data) {
+      setEditTitle(lp.data.title);
+      setEditContent(lp.data.content);
+    }
+  }, [lp]);
+
+  // 댓글 무한스크롤
+  const {
+    data: commentsData,
+    isPending: commentsPending,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteLpComments({
+    lpId: numericLpId,
+    order,
+    limit: 10,
+  });
+
+  // 바닥 감지
+  const { ref: bottomRef, inView } = useInView({
+    threshold: 0,
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [
+    inView,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
+
+  // 댓글 목록
+  const comments =
+    commentsData?.pages.flatMap(
+      (page) => page.data.data ?? []
+    ) ?? [];
+
+  // 댓글 유효성
+  const isCommentEmpty =
+    commentInput.trim().length === 0;
+
+  const showError = touched && isCommentEmpty;
+
+  // 댓글 작성
+  const handleSubmitComment = async () => {
+    if (isCommentEmpty) {
+      setTouched(true);
+      return;
     }
 
-    return (
-        <div className="max-w-4xl mx-auto p-6 text-white space-y-8">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-700 rounded-full overflow-hidden">
-                        {lp?.user?.avatar && (
-                            <img src={lp.user.avatar} alt="profile" className="w-full h-full object-cover" />
-                        )}
-                    </div>
-                    <span className="font-semibold">{lp?.user?.name || "사용자"}</span>
-                </div>
+    try {
+      await createComment({
+        lpId: numericLpId,
+        content: commentInput,
+      });
 
-                {isOwner && !isEditing && (
-                    <div className="flex gap-3">
-                        <button
-                            onClick={handleEditStart}
-                            className="text-sm text-gray-400 hover:text-white transition-colors"
-                        >
-                            ✏️ 수정
-                        </button>
-                        <button
-                            onClick={() => setShowDeleteConfirm(true)}
-                            className="text-sm text-gray-400 hover:text-red-400 transition-colors"
-                        >
-                            🗑️ 삭제
-                        </button>
-                    </div>
-                )}
+      await queryClient.invalidateQueries({
+        queryKey: ["lpComments", numericLpId, order],
+      });
 
-                {isEditing && (
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => updateLp.mutate()}
-                            disabled={updateLp.isPending}
-                            className="text-sm text-[#FF007A] hover:opacity-80 transition-opacity disabled:opacity-50"
-                        >
-                            {updateLp.isPending ? '저장 중...' : '✔ 저장'}
-                        </button>
-                        <button
-                            onClick={() => setIsEditing(false)}
-                            className="text-sm text-gray-400 hover:text-white transition-colors"
-                        >
-                            ✕ 취소
-                        </button>
-                    </div>
-                )}
-            </div>
+      setCommentInput("");
+      setTouched(false);
+    } catch (error) {
+      console.error("댓글 작성 실패:", error);
+    }
+  };
 
-            <div className="flex justify-center py-10 bg-[#121212] rounded-2xl">
-                <div className="relative w-72 h-72 sm:w-96 sm:h-96">
-                    <img
-                        src={lp?.thumbnail}
-                        alt={lp?.title}
-                        className="w-full h-full object-cover rounded-full animate-[spin_20s_linear_infinite]"
-                    />
-                </div>
-            </div>
+  // LP 수정
+  const handleUpdateLp = () => {
+    updateLpMutate(
+      {
+        lpId: numericLpId,
+        title: editTitle,
+        content: editContent,
+        thumbnailFile,
+        tags: [],
+      },
+      {
+        onSuccess: () => {
+          setIsEdit(false);
+        },
 
-            <div className="space-y-4">
-                {isEditing ? (
-                    <div className="space-y-3">
-                        <input
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            className="w-full bg-transparent border border-gray-700 rounded-lg px-4 py-2 text-3xl font-bold outline-none focus:border-[#FF007A]"
-                        />
-                        <textarea
-                            value={editContent}
-                            onChange={(e) => setEditContent(e.target.value)}
-                            rows={4}
-                            className="w-full bg-transparent border border-gray-700 rounded-lg px-4 py-2 text-gray-400 outline-none focus:border-[#FF007A] resize-none"
-                        />
-                    </div>
-                ) : (
-                    <>
-                        <h1 className="text-3xl font-bold">{lp?.title}</h1>
-                        <p className="text-gray-400">{lp?.content}</p>
-                    </>
-                )}
-
-                <button
-                    onClick={handleLikeToggle}
-                    disabled={like.isPending || unlike.isPending}
-                    className={`flex items-center gap-2 text-sm px-4 py-2 rounded-full border transition-colors disabled:opacity-50 ${isLiked
-                            ? 'border-[#FF007A] text-[#FF007A]'
-                            : 'border-gray-600 text-gray-400 hover:border-[#FF007A] hover:text-[#FF007A]'
-                        }`}
-                >
-                    {isLiked ? '❤️' : '🤍'} {lp?.likes?.length ?? 0}
-                </button>
-            </div>
-
-            <CommentSection lpId={lpid || ""} />
-
-            {showDeleteConfirm && (
-                <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center">
-                    <div className="bg-[#1e1e1e] border border-white/10 rounded-2xl p-8 w-[320px] shadow-2xl">
-                        <p className="text-white text-center text-base font-medium mb-6">
-                            정말 삭제하시겠습니까?
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowDeleteConfirm(false)}
-                                className="flex-1 py-3 bg-[#2a2a2a] hover:bg-[#333] text-white rounded-xl font-medium transition-colors"
-                            >
-                                아니오
-                            </button>
-                            <button
-                                onClick={() => { deleteLp(); setShowDeleteConfirm(false); }}
-                                disabled={isDeleting}
-                                className="flex-1 py-3 bg-[#FF007A] hover:bg-[#ff1a87] text-white rounded-xl font-medium transition-colors disabled:opacity-50"
-                            >
-                                {isDeleting ? '삭제 중...' : '예'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+        onError: (error) => {
+          console.error("수정 실패", error);
+        },
+      }
     );
-};
+  };
+  return (
+    <div className="mt-20 flex flex-col items-center w-full max-w-2xl mx-auto px-4 pb-20">
+
+      {/* LP 상세 */}
+      {lpPending ? (
+        <div className="animate-pulse w-full space-y-4 mt-10">
+          <div className="w-60 h-60 rounded-full bg-gray-200 mx-auto" />
+          <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto" />
+          <div className="h-4 bg-gray-200 rounded w-full" />
+        </div>
+      ) : (
+        <>
+          {/* 제목 + 버튼 */}
+          <div className="w-full flex items-center gap-3 mb-6">
+
+            {isEdit ? (
+              <input
+                value={editTitle}
+                onChange={(e) =>
+                  setEditTitle(e.target.value)
+                }
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+              />
+            ) : (
+              <h1 className="text-2xl font-bold flex-1">
+                {lp?.data?.title}
+              </h1>
+            )}
+
+            <button
+              onClick={() => {
+                if (isEdit) {
+                  handleUpdateLp();
+                } else {
+                  setIsEdit(true);
+                }
+              }}
+            >
+              {isEdit ? "저장" : "수정"}
+            </button>
+
+            <button className="w-16 h-10 border rounded-md text-sm text-red-500 hover:bg-red-50">
+              삭제
+            </button>
+          </div>
+
+          {/* 이미지 */}
+          <div className="relative w-60 h-60 flex justify-center items-center bg-pink-200 rounded-full mb-6 overflow-hidden">
+
+            <img
+              src={lp?.data?.thumbnail}
+              alt={lp?.data?.title}
+              className="w-56 h-56 rounded-full object-cover"
+            />
+          </div>
+
+          {/* 이미지 수정 */}
+          {isEdit && (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setThumbnailFile(
+                    e.target.files[0]
+                  );
+                }
+              }}
+              className="mb-4"
+            />
+          )}
+
+          {/* 내용 */}
+          {isEdit ? (
+            <textarea
+              value={editContent}
+              onChange={(e) =>
+                setEditContent(e.target.value)
+              }
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4"
+            />
+          ) : (
+            <p className="text-gray-700 text-center mb-4">
+              {lp?.data?.content}
+            </p>
+          )}
+
+          <div className="text-xl mb-10">
+            ❤️ {lp?.data?.likes?.length ?? 0}
+          </div>
+        </>
+      )}
+
+      {/* 댓글 섹션 */}
+      <div className="w-full">
+
+        {/* 정렬 */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold">댓글</h2>
+
+          <div className="flex rounded-lg overflow-hidden border border-gray-300">
+
+            <button
+              onClick={() =>
+                setOrder(PAGINATION_ORDER.desc)
+              }
+              className={`px-4 py-1.5 text-sm font-semibold transition-colors ${order === PAGINATION_ORDER.desc
+                ? "bg-pink-400 text-white"
+                : "bg-white text-gray-500"
+                }`}
+            >
+              최신순
+            </button>
+
+            <button
+              onClick={() =>
+                setOrder(PAGINATION_ORDER.asc)
+              }
+              className={`px-4 py-1.5 text-sm font-semibold transition-colors ${order === PAGINATION_ORDER.asc
+                ? "bg-pink-400 text-white"
+                : "bg-white text-gray-500"
+                }`}
+            >
+              오래된순
+            </button>
+          </div>
+        </div>
+
+        {/* 댓글 작성 */}
+        <div className="border border-gray-200 rounded-2xl p-4 mb-6 space-y-3 bg-gray-50">
+
+          <textarea
+            value={commentInput}
+            onChange={(e) => {
+              setCommentInput(e.target.value);
+
+              if (touched) {
+                setTouched(false);
+              }
+            }}
+            onBlur={() => setTouched(true)}
+            rows={3}
+            placeholder="댓글을 입력해주세요..."
+            className={`w-full bg-white border rounded-xl px-4 py-3 text-sm resize-none ${showError
+              ? "border-red-400"
+              : "border-gray-300"
+              }`}
+          />
+
+          {showError && (
+            <p className="text-xs text-red-500">
+              댓글 내용을 입력해주세요.
+            </p>
+          )}
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleSubmitComment}
+              className="bg-pink-400 hover:bg-pink-500 text-white text-sm font-bold px-5 py-2 rounded-xl"
+            >
+              등록
+            </button>
+          </div>
+        </div>
+
+        {/* 댓글 목록 */}
+        <div className="space-y-5">
+
+          {commentsPending && (
+            <CommentSkeletonList count={5} />
+          )}
+
+          {!commentsPending &&
+            comments.map((comment) => (
+              <div
+                key={comment.id}
+                className="flex gap-3"
+              >
+                <div className="w-9 h-9 rounded-full bg-pink-200 flex items-center justify-center text-sm font-bold">
+                  {comment.user?.name?.[0] ?? "?"}
+                </div>
+
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+
+                    <span className="text-sm font-semibold">
+                      {comment.author?.name ??
+                        "익명"}
+                    </span>
+
+                    <span className="text-xs text-gray-400">
+                      {new Date(
+                        comment.createdAt
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-gray-700">
+                    {comment.content}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+          {isFetchingNextPage && (
+            <CommentSkeletonList count={3} />
+          )}
+        </div>
+
+        {/* 무한스크롤 */}
+        <div ref={bottomRef} className="h-8" />
+      </div>
+    </div>
+  );
+}
 
 export default LpDetailPage;

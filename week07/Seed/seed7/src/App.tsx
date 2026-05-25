@@ -1,71 +1,63 @@
-import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './context/AuthContext';
-import Homepage from './pages/Homepage';
-import Loginpage from './pages/Loginpage';
-import SignUpPage from './pages/SignUpPage';
-import MyPage from './pages/MyPage';
-import CreatePage from './pages/CreatePage';
-import LpDetailPage from './pages/LpDetailPage';
-import GoogleCallback from './pages/GoogleCallback';
-import NotFoundPage from './pages/NotFoundPage';
-import ProtectedLayout from './components/ProtectedRoute'; 
-import HomeLayout from './layouts/HomeLayout';
-import { SidebarProvider } from './context/SidebarContext';
+// App.tsx
+import { createBrowserRouter, RouteObject, RouterProvider } from "react-router-dom";
+import "./App.css";
+import HomePage from "./pages/HomePage";
+import NotFoundPage from "./pages/NotFoundPage";
+import HomeLayout from "./Layouts/HomeLayout";
+import SignupPage from "./pages/SignupPage";
+import MyPage from "./pages/MyPage";
+import SignupPasswordPage from "./pages/SignupPasswordPage";
+import { AuthProvider } from "./context/AuthContext";
+import LoginPage from "./pages/LoginPage";
+import GoogleLoginRedirectPage from "./pages/GoogleLoginRedirectPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import ProtectedLayout from "./Layouts/ProtectedLayout";
+import LpDetailPage from "./pages/LpDetailPage";
 
-const routes: RouteObject[] = [
+const AuthLayout = () => {
+  return (
+    <AuthProvider>
+      <HomeLayout />
+    </AuthProvider>
+  );
+};
+
+const router = createBrowserRouter([
   {
-    path: '/',
-    element: <HomeLayout />,
+    path: "/",
+    element: <AuthLayout />,
     errorElement: <NotFoundPage />,
     children: [
-      {
-        index: true,
-        element: <Homepage />,
-      },
-      {
-        path: 'lp/:lpid',
-        element: <LpDetailPage />,
-      },
-      {
-        element: <ProtectedLayout />,
-        children: [
-          {
-            path: 'my',
-            element: <MyPage />,
-          },
-          {
-            path: 'create',
-            element: <CreatePage />,
-          },
-        ],
-      },
+      { index: true, element: <HomePage /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "signup", element: <SignupPage /> },
+      { path: "signup/password", element: <SignupPasswordPage /> },
+      { path: "my", element: <MyPage /> },
+      { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> },
+      { path: "/lp/:lpId", element: <LpDetailPage /> }
     ],
-  },
-  { path: '/login', element: <Loginpage /> },
-  { path: '/signup', element: <SignUpPage /> },
-  { path: '/v1/auth/google/callback', element: <GoogleCallback /> },
-];
+  }
+]);
 
-const router = createBrowserRouter(routes);
 
-export const queryClient: QueryClient = new QueryClient({
+
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 3,
-    },
-  },
+    }
+  }
 });
 
 function App() {
-  return ( 
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>   
-        <SidebarProvider> 
-          <RouterProvider router={router} />
-        </SidebarProvider>
-      </AuthProvider>     
+  return (
+    < QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
+
+
   );
 }
 

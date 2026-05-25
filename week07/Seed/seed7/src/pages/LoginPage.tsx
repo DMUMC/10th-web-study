@@ -1,114 +1,89 @@
-import { useLocation, useNavigate } from 'react-router-dom'
-import useForm from '../hooks/useForm'
-import { vaildateSignin, type UserSigninInformation } from '../utils/validate'
-import UserInput from '../components/UserInput'
-import { useAuth } from '../context/AuthContext'
-import { useEffect } from 'react'
-import { useSignin } from '../hooks/diverse/useSignin'
+import { UserSigninInformation, validateSignin } from "../utils/validate";
+import useForm from "../hooks/useForm";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.tsx";
+import { useEffect } from "react";
 
-const Loginpage = () => {
-    const { accessToken } = useAuth()
-    const navigate = useNavigate()
-    const location = useLocation()
-    const from = location.state?.from?.pathname || '/'
+
+
+const LoginPage = () => {
+
+    const { login, accessToken } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (accessToken) navigate(from, { replace: true })
-    }, [accessToken, navigate, from])
+        if (accessToken) {
+            navigate("/my");
+        }
+    }, [navigate, accessToken]);
 
-    const { mutate: signin, isPending } = useSignin(from)
+    const { values, errors, touched, getInputProps } =
+        useForm<UserSigninInformation>({
+            initialValue: {
+                email: "",
+                password: "",
+            },
+            validate: validateSignin,
+        });
 
-    const { values, errors, touched, getInputProps } = useForm<UserSigninInformation>({
-        initialValue: { email: '', password: '' },
-        validate: vaildateSignin,
-    })
-
-    const handleSubmit = () => {
-        signin(values)
-    }
+    const handleSubmit = async () => {
+        await login(values);
+    };
 
     const handleGoogleLogin = () => {
-        window.location.href = `${import.meta.env.VITE_SERVER_API_URL}/v1/auth/google/login`
-    }
+        window.location.href = import.meta.env.VITE_APP_URL + "/v1/auth/google/login";
 
-    const isDisabled: boolean =
-        isPending ||
-        Object.values(errors || {}).some((error: string) => error.length > 0) ||
-        Object.values(values).some((value: string) => value === '')
+    };
+    //오류가 하나라도 있거나, 입력값이 비어있으면 버튼을 비활성화
+    const isDisabled =
+        Object.values(errors || {}).some((error) => error.length > 0) || //오류가 있으면 true
+        Object.values(values).some((value) => value === ""); //입력값이 비어있으면 True
 
-    return (
-        <div className="flex items-center justify-center min-h-screen w-full bg-[#121212] p-4">
-            <div className="w-full max-w-[400px] bg-[#1e1e1e] border border-white/5 rounded-2xl p-10 shadow-2xl">
-                <div className="flex items-center mb-10 relative">
-                    <button
-                        type="button"
-                        onClick={() => navigate(-1)}
-                        className="absolute left-0 text-gray-400 hover:text-white transition-colors"
-                    >
-                        {'<'}
-                    </button>
-                    <h1 className="w-full text-center text-2xl font-bold text-white">로그인</h1>
-                </div>
-
-                <div className="space-y-4 mb-8">
-                    <UserInput
-                        {...getInputProps('email')}
-                        type="email"
-                        placeholder="이메일을 입력해주세요"
-                        error={errors?.email}
-                        touched={touched.email}
-                    />
-                    <UserInput
-                        {...getInputProps('password')}
-                        type="password"
-                        placeholder="비밀번호를 입력해주세요"
-                        error={errors?.password}
-                        touched={touched.password}
-                    />
-                </div>
-
-                <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={isDisabled}
-                    className="w-full py-4 bg-[#FF007A] hover:bg-[#ff1a87] text-white rounded-xl font-bold shadow-lg shadow-[#FF007A]/20 disabled:bg-gray-700 disabled:text-gray-500 disabled:shadow-none transition-all cursor-pointer mb-4"
-                >
-                    {isPending ? '로그인 중...' : '로그인'}
-                </button>
-
-                <div className="flex items-center my-6">
-                    <div className="flex-grow border-t border-white/10"></div>
-                    <span className="mx-4 text-gray-500 text-sm">또는</span>
-                    <div className="flex-grow border-t border-white/10"></div>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={handleGoogleLogin}
-                    className="w-full py-4 bg-[#2a2a2a] border border-white/10 hover:bg-[#333333] text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all cursor-pointer shadow-sm"
-                >
-                    <img
-                        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                        alt="Google"
-                        className="w-5 h-5"
-                    />
-                    구글 로그인
-                </button>
-
-                <div className="mt-8 text-center">
-                    <p className="text-gray-400 text-sm">
-                        계정이 없으신가요?{' '}
-                        <button
-                            onClick={() => navigate('/signup')}
-                            className="text-[#FF007A] hover:underline font-medium"
-                        >
-                            회원가입
-                        </button>
-                    </p>
-                </div>
+    const handleBack = () => {
+        navigate(-1);
+    };
+    return <div className="LoginPage flex flex-col items-center justify-center h-full gap-4">
+        <div className="flex flex-col gap-3">
+            <div className="LoginPage__header">
+                <button onClick={handleBack}>&lt;</button>로그인
             </div>
+            {/* <LoginTypeButton type="google" onClick={handleGoogleLogin} /> */}
+            <input
+                {...getInputProps('email')}
+                name="email"
+                className={`border border-[#ccc] w-[300px] p-[10px] focu:border-#807ff] rounded-sm 
+                ${errors?.email && touched?.email ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                type={"email"}
+                placeholder="이메일" />
+            {errors?.email && touched?.email && (
+                <div className="text-red-500 text-sm">이메일 에러</div>
+            )}
+            <input
+                {...getInputProps('password')}
+                className={`border border-[#ccc] w-[300px] p-[10px] focu:border-#807ff] rounded-sm 
+                ${errors?.password && touched?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                type={"password"}
+                placeholder="비밀번호" />
+            {errors?.password && touched?.password && (
+                <div className="text-red-500 text-sm">비밀번호 에러</div>
+            )}
+            <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isDisabled}
+                className="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-700 transition-colors cursor-pointer disabled:bg-gray-300">
+                로그인
+            </button>
+            <button
+                type="button"
+                onClick={handleGoogleLogin}
+                className="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 trasition-colors cursor-pointer disabled:bg-gray-300">
+                <div className="flex items-center justify-center gap-4">
+                    <img src="https://images.icon-icons.com/2642/PNG/512/google_logo_g_logo_icon_159348.png" className="w-10 h-10" alt="Google Logo Image" />
+                    <span>구글 로그인</span>
+                </div>
+            </button>
         </div>
-    )
-}
-
-export default Loginpage
+    </div>;
+};
+export default LoginPage;

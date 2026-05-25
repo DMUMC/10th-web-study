@@ -1,59 +1,67 @@
-import { createContext, useContext, useState, type PropsWithChildren } from "react";
-import type { RequestSigninDto } from "../types/auth";
-import { LOCAL_STORAGE_KEY } from "../constans/key";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import { postLogout, postSignin } from "../apis/auth";
+import { RequestSigninDto } from "../types/auth";
+import { createContext, PropsWithChildren, useContext } from "react";
+import { LOCAL_STORAGE_KEY } from "../constants/key";
+import { useState } from "react";
+import { deleteUser, postLogout, postSignin } from "../apis/auth";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
     accessToken: string | null;
     refreshToken: string | null;
-    setAccessToken: React.Dispatch<React.SetStateAction<string | null>>; 
-    setRefreshToken: React.Dispatch<React.SetStateAction<string | null>>; 
-    login: (signinData: RequestSigninDto) => Promise<void>;
+    login: (signInData: RequestSigninDto) => Promise<void>;
     logout: () => Promise<void>;
+    // memberOut: () => Promise<void>;
+    clearAuth: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     accessToken: null,
     refreshToken: null,
-    setAccessToken: () => {},
-    setRefreshToken: () => {},
-    login: async () => {},
-    logout: async () => {}
-});
+    login: async () => { },
+    logout: async () => { },
+    // memberOut: async () => { },
+    clearAuth: () => { },
+})
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-    const { 
-        getItem: getAccessTokenFromStorage, 
-        setItem: setAccessTokenInStorage, 
-        removeItem: removeAccessTokenFromStorage 
-    } = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
+    const navigate = useNavigate();
+    const {
+        getItem: getAccessTokenFromStorage,
+        setItem: setAccessTokenInStorage,
+        removeItem: removeAccessTokenFromStorage,
+    } = useLocalStorage(
+        // LOCAL_STORAGE_KEY.refreshToken);
+        LOCAL_STORAGE_KEY.accessToken);
 
-    const { 
-        getItem: getRefreshToken, 
-        setItem: setRefreshTokenStorage, 
-        removeItem: removeRefreshToken 
+    const {
+        getItem: getRefreshTokenFromStorage,
+        setItem: setRefreshTokenInStorage,
+        removeItem: removeRefreshTokenFromStorage,
     } = useLocalStorage(LOCAL_STORAGE_KEY.refreshToken);
 
-    const [accessToken, setAccessToken] = useState<string | null>(() => getAccessTokenFromStorage());
-    const [refreshToken, setRefreshToken] = useState<string | null>(() => getRefreshToken());
-
+    const [accessToken, setAccessToken] = useState<string | null>(
+        getAccessTokenFromStorage(),
+    )
+    const [refreshToken, setRefreshToken] = useState<string | null>(
+        getRefreshTokenFromStorage(),
+    )
     const login = async (signinData: RequestSigninDto) => {
         try {
-            const { data } = await postSignin(signinData);
-            if (data) {
-                const newAccessToken = data.accessToken;
-                const newRefreshToken = data.refreshToken;
+            const response = await postSignin(signinData);
+            if (response.data) {
+                const newAccessToken = response.data.accessToken;
+                const newRefreshToken = response.data.refreshToken;
 
                 setAccessTokenInStorage(newAccessToken);
-                setRefreshTokenStorage(newRefreshToken);
+                setRefreshTokenInStorage(newRefreshToken);
 
                 setAccessToken(newAccessToken);
                 setRefreshToken(newRefreshToken);
                 alert("로그인 성공");
             }
         } catch (error) {
-            console.error(error);
+            console.error("로그인 오류", error);
             alert("로그인 실패");
         }
     };
@@ -61,32 +69,55 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     const logout = async () => {
         try {
             await postLogout();
-        } catch (error) {
-            console.error("로그아웃 API 호출 실패:", error);
-        } finally {
             removeAccessTokenFromStorage();
-            removeRefreshToken();
+            removeRefreshTokenFromStorage();
 
             setAccessToken(null);
             setRefreshToken(null);
 
             alert("로그아웃 성공");
+            // navigate("/");
+        } catch (error) {
+            console.log("로그아웃 오류", error);
+            alert("로그아웃 실패");
         }
     };
 
-    return (
-        <AuthContext.Provider value={{ accessToken, refreshToken, setAccessToken, 
-            setRefreshToken,login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
+    // const memberOut = async () => {
+    //     try {
+    //         await deleteUser();
+    //         removeAccessTokenFromStorage();
+    //         removeRefreshTokenFromStorage();
 
-export const useAuth =()=>{
-    const context=useContext(AuthContext);
-    if(!context){
-        throw new Error("AuthContext를 찾을 수 없습니다");
+    //         setAccessToken(null);
+    //         setRefreshToken(null);
+
+    //         alert("회원탈퇴 성공");
+    //         navigate("/login");
+    //     } catch (error) {
+    //         console.log("회원탈퇴 오류", error);
+    //         alert("회원탈퇴 실패");
+    //     }
+    // };
+    const clearAuth = () => {
+        removeAccessTokenFromStorage();
+        removeRefreshTokenFromStorage();
+        setAccessToken(null);
+        setRefreshToken(null);
     }
 
-    return context;
+
+    return (
+        <AuthContext.Provider value={{ accessToken, refreshToken, login, logout, clearAuth }}>
+            {children}
+        </AuthContext.Provider>
+    )
+};
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("AuthContext를 찾을 수 없습니다.");
+    }
+    return context
 }
