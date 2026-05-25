@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+
+/* body {
+    background-color: aliceblue;
+    width: auto;
+    height: auto;
+} */
+
+.HomeLayout__nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.HomeLayout__nav-btn {
+    width: 130px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.HomeLayout__nav-btn button {
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgb(0, 0, 0);
+}
+
+.HomeLayout__nav-btn .member {
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    background-color: rgb(255, 0, 187);
+}
+
+.HomeLayout__nav-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgb(255, 0, 187);
+}
+
+.LoginPage {
+    /* margin-top: 100px; */
+    /* margin-left: 500px; */
+    /* background-color: rgb(241, 212, 234); */
+    margin-top: 150px;
+    width: 450px;
+    height: 550px;
+}
+
+.LoginPage__header {
+    font-size: 24px;
+    font-weight: 700;
+    color: rgb(255, 0, 187);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 95px;
+    margin-top: -120px;
+    margin-bottom: 120px;
+}
