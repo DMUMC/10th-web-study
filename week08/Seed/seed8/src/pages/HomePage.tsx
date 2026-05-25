@@ -14,6 +14,7 @@ import { LpCard, LpCardSkeletonList } from "../components/LpCard";
 import record from "../images/record.png";
 import useCreateLp from "../hooks/mutations/useCreateLp";
 import useDebounce from "../hooks/useDebounce";
+import useThrottle from "../hooks/useThrottle";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function MainPage() {
 
   // 바닥 감지 ref (react-intersection-observer)
   const { ref: bottomRef, inView } = useInView({ threshold: 0 });
+  console.log("inView 원본:", inView);
   const debouncedQuery = useDebounce(searchInput, 300);
   const {
     data,
@@ -37,11 +39,11 @@ export default function MainPage() {
     limit: 12,
   });
   // 바닥이 보이면 다음 페이지 요청
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  // useEffect(() => {
+  //   if (inView && hasNextPage && !isFetchingNextPage) {
+  //     fetchNextPage();
+  //   }
+  // }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // pages를 flat하게 펼쳐 단일 배열로
   const lpItems =
@@ -86,6 +88,29 @@ export default function MainPage() {
     }
   };
 
+  const throttledInView = useThrottle(inView, 1000);
+
+  useEffect(() => {
+    console.log("throttled:", throttledInView);
+
+    if (
+      throttledInView &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      console.log("fetch!");
+
+      fetchNextPage();
+    }
+  }, [
+    throttledInView,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
+
+
+
   return (
     <div className="min-h-screen bg-white-950 text-white">
 
@@ -121,8 +146,9 @@ export default function MainPage() {
         </div>
 
         {/* 바닥 감지 트리거 (invisible) */}
-        <div ref={bottomRef} className="h-10" />
-
+        <div ref={bottomRef} className="h-20 bg-red-500">
+          bottom trigger
+        </div>
         {/* 마지막 페이지 안내 */}
         {!hasNextPage && !isPending && lpItems.length > 0 && (
           <p className="text-center text-zinc-500 text-sm mt-6">

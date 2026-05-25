@@ -192,11 +192,12 @@ export default function MyPage() {
 
     // pages를 flat하게 펼쳐 단일 배열로
     const lpItems =
-        data?.pages.flatMap((page) => page.data.data ?? []) ?? [];
+        data?.pages.flatMap(
+            (page) => page.data.data.data ?? []
+        ) ?? [];
+    console.log(lpItems);
 
-    const handleSearch = () => {
-        setSearch(searchInput);
-    };
+
     const [thumbnail, setThumbnail] = useState<string | null>(null);
 
 
