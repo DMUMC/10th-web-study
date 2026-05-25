@@ -15,7 +15,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 z-20 bg-black/50"
+          className="fixed inset-0 z-20 bg-black/50 transition-opacity duration-300"
           onClick={onClose}
           aria-hidden="true"
         />
