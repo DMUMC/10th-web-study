@@ -30,7 +30,7 @@ export const getLpComments = async (
   lpId: number,
   params: PaginationDto
 ): Promise<any> => {
-  const { data } = await axiosInstance.get(`/v1/lps/${lpId}/comments`, {
+  const { data } = await axiosInstance.get(`/lps/${lpId}/comments`, {
     params,
   });
   return data;
@@ -76,5 +76,10 @@ export const deleteComment = async (lpId: number, commentId: number) => {
 
 export const postLike = async (lpId: number) => {
   const { data } = await axiosInstance.post(`/v1/lps/${lpId}/likes`);
+  return data;
+};
+
+export const deleteLike = async (lpId: number) => {
+  const { data } = await axiosInstance.delete(`/v1/lps/${lpId}/likes`);
   return data;
 };

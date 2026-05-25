@@ -1,17 +1,18 @@
-// src/pages/LoginPage.tsx
 import googleLogo from '../assets/Google__G__logo.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form'; 
 import { zodResolver } from '@hookform/resolvers/zod'; 
 import { loginSchema, type LoginFormData } from '../utils/validation'; 
-import { useAuth } from '../context/AutoContext';
+import { useAuth } from '../context/AutoContext'; 
+import { useMutation } from '@tanstack/react-query';
+import { postLogin } from '../apis/authApi';
 
 export const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login, isLoading } = useAuth(); 
+    const { login } = useAuth();
 
-    const redirectPath = location.state?.from || '/lps'; 
+    const redirectPath = location.state?.from || '/v1/lps'; 
 
     const {
         register,
@@ -22,27 +23,42 @@ export const LoginPage = () => {
         mode: 'onBlur',
     });
 
-    const handleLogin = async (data: LoginFormData) => {
-        await login(data, redirectPath); 
+    const { mutate: loginMutate, isPending } = useMutation({
+        mutationFn: postLogin,
+        onSuccess: async (response, variables) => {
+            await login(variables, redirectPath);
+        },
+        onError: (error: any) => {
+            console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert(`로그인 실패: ${error.response.data.message}`);
+            } else {
+                alert('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+            }
+        }
+    });
+
+    const onSubmit = (data: LoginFormData) => {
+        loginMutate(data);
     };
 
     const handleGoogleLogin = () => {
-      localStorage.setItem('loginRedirectPath', redirectPath);
-      window.location.href = 'http://localhost:8000/v1/auth/google/login';
+        localStorage.setItem('loginRedirectPath', redirectPath);
+        window.location.href = 'http://localhost:8000/v1/auth/google/login';
     };
     
     return (
         <div className='flex flex-col gap-4 w-80 p-4'>
             <div className='flex justify-between items-center mb-4'>
                 <button className='text-white w-10 text-2xl' onClick={() => navigate(-1)}>{'<'}</button>
-                <p className='text-2xl font-bold text-center'>로그인</p>
+                <p className='text-2xl font-bold text-center text-white'>로그인</p>
                 <div className='w-10'></div>
             </div>
 
             <button 
-              type="button" 
-              className='flex px-4 py-3 border border-gray-500 rounded-md items-center justify-center relative font-semibold hover:bg-neutral-800 transition-colors'
-              onClick={handleGoogleLogin}
+                type="button" 
+                className='flex px-4 py-3 border border-gray-500 rounded-md items-center justify-center relative font-semibold text-white hover:bg-neutral-800 transition-colors'
+                onClick={handleGoogleLogin}
             >
                 <img src={googleLogo} alt="googleLogo" className='absolute left-4 w-5 h-5' />
                 <p>구글 로그인</p>
@@ -53,12 +69,12 @@ export const LoginPage = () => {
                 <div className='relative flex justify-center text-sm'><span className='bg-neutral-900 px-2 text-gray-400'>OR</span></div>
             </div>
             
-            <form onSubmit={handleSubmit(handleLogin)} className='flex flex-col gap-4'>
+            <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>
                 <div>
                     <input
                         type="text"
                         placeholder='이메일을 입력해주세요'
-                        className='w-full bg-neutral-800 px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full bg-neutral-800 text-white px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
                         {...register('email')} 
                     />
                     {errors.email && <p className='text-red-500 text-sm mt-1 ml-1'>{errors.email.message}</p>}
@@ -68,7 +84,7 @@ export const LoginPage = () => {
                     <input
                         type="password"
                         placeholder='비밀번호를 입력해주세요'
-                        className='w-full bg-neutral-800 px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full bg-neutral-800 text-white px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
                         {...register('password')} 
                     />
                     {errors.password && <p className='text-red-500 text-sm mt-1 ml-1'>{errors.password.message}</p>}
@@ -77,9 +93,9 @@ export const LoginPage = () => {
                 <button
                     type="submit"
                     className='bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:bg-neutral-700 disabled:cursor-not-allowed font-bold'
-                    disabled={!isValid || isLoading} 
+                    disabled={!isValid || isPending} 
                 >
-                    {isLoading ? '로그인 중...' : '로그인'}
+                    {isPending ? '로그인 중...' : '로그인'}
                 </button>
             </form>
         </div>

@@ -1,9 +1,8 @@
-// src/pages/LpDetailPage.tsx
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getLpDetail, getLpComments, postComment, deleteComment, patchComment, postLike, deleteLp } from '../apis/lpApi';
-import { ErrorDisplay, LpDetailSkeleton, CommentSkeleton } from '../components/LoadingError';
+import { getLpDetail, getLpComments, postComment, deleteComment, patchComment, postLike, deleteLike, deleteLp } from '../apis/lpApi';
+import { ErrorDisplay, LpDetailSkeleton } from '../components/LoadingError';
 import { CreateLpModal } from '../components/CreateLpModal';
 import { useAuth } from '../context/AutoContext';
 import type { Lp } from '../types/lp';
@@ -30,7 +29,8 @@ export const LpDetailPage = () => {
   const numericLpId = lpid ? parseInt(lpid, 10) : undefined;
   
   const queryClient = useQueryClient();
-  const { userEmail } = useAuth(); 
+  
+  const { userEmail, userId } = useAuth(); 
 
   const [activeMenuCommentId, setActiveMenuCommentId] = useState<number | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
@@ -67,15 +67,59 @@ export const LpDetailPage = () => {
     onError: (err: any) => alert(err.response?.data?.message || '삭제 실패')
   });
 
+  const isLikedByMe = lp?.likes?.some((l: any) => {
+      return Number(l.userId) === Number(userId);
+  });
+  
+  const likeCount = lp?.likeCount || (lp?.likes ? lp.likes.length : 0);
+
   const { mutate: toggleLike } = useMutation({
-    mutationFn: () => postLike(numericLpId!),
+    mutationFn: () => {
+        if (isLikedByMe) {
+            return deleteLike(numericLpId!);
+        } else {
+            return postLike(numericLpId!);
+        }
+    },
+    
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['lp', numericLpId] });
       const previousLp = queryClient.getQueryData(['lp', numericLpId]);
+
+      queryClient.setQueryData(['lp', numericLpId], (old: any) => {
+         if (!old || (!old.data && !old.data?.data)) return old;
+         const currentLp = old.data.data || old.data;
+         
+         let newLikes = [...(currentLp.likes || [])];
+         let newCount = currentLp.likeCount || 0;
+
+         if (isLikedByMe) {
+             newLikes = newLikes.filter((l: any) => Number(l.userId) !== Number(userId));
+             newCount = Math.max(0, newCount - 1);
+         } else {
+             newLikes.push({ userId: userId, id: 'temp-optimistic-id' });
+             newCount += 1;
+         }
+
+         return {
+             ...old,
+             data: {
+                 ...old.data,
+                 data: { ...currentLp, likes: newLikes, likeCount: newCount }
+             }
+         };
+      });
       return { previousLp };
     },
     onError: (err, _, context) => {
+      console.error(err);
       queryClient.setQueryData(['lp', numericLpId], context?.previousLp);
+      
+      if ((err as any).response?.status === 409) {
+          queryClient.invalidateQueries({ queryKey: ['lp', numericLpId] });
+      } else {
+          alert('좋아요 처리에 실패했습니다.');
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['lp', numericLpId] });
@@ -172,7 +216,6 @@ export const LpDetailPage = () => {
   const formattedDate = new Date(lp.createdAt).toLocaleDateString();
   const writerName = lp.author ? lp.author.name : (lp.authorId ? `작성자 #${lp.authorId}` : 'Unknown');
   const profileImageUrl = lp.author?.avatar || `https://placehold.co/40x40/555555/FFFFFF?text=${writerName[0] || 'U'}`;
-  const likeCount = Array.isArray(lp.likes) ? lp.likes.length : (lp.likeCount || 0);
 
   const getThumbnailUrl = (thumb: string) => {
       if (!thumb || !thumb.startsWith('http')) {
@@ -220,9 +263,23 @@ export const LpDetailPage = () => {
       )}
 
       <footer className="flex justify-center items-center pb-8 border-b border-neutral-700 mb-8">
-        <button onClick={() => toggleLike()} className="flex items-center gap-2 text-red-400 hover:text-red-500 transition-colors group p-2">
-            <span className="text-2xl group-active:scale-125 transition-transform">❤️</span>
-            <span className="text-xl font-semibold">{likeCount}</span>
+        <button 
+            onClick={() => toggleLike()} 
+            className="flex flex-col items-center gap-1 group p-2 transition-transform active:scale-90"
+        >
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill={isLikedByMe ? "currentColor" : "none"} 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                className={`w-10 h-10 ${isLikedByMe ? "text-red-500" : "text-gray-400 group-hover:text-red-400"}`}
+            >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+            </svg>
+            <span className={`text-lg font-bold ${isLikedByMe ? "text-red-500" : "text-gray-400"}`}>
+                {likeCount}
+            </span>
         </button>
       </footer>
 

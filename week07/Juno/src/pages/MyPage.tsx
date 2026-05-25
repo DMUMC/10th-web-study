@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyInfo, patchMyInfo } from '../apis/authApi';
+import { useAuth } from '../context/AutoContext';
 
 export const MyPage = () => {
   const queryClient = useQueryClient();
+  
+  const { updateUserInfo } = useAuth(); 
+  
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
@@ -18,15 +22,13 @@ export const MyPage = () => {
   const targetData = userData?.data?.data || userData?.data;
   const userInfo = Array.isArray(targetData) ? targetData[0] : targetData;
 
-  const handleStartEdit = () => {
-      if (userInfo) {
-          setName(userInfo.name || '');
-          setBio(userInfo.bio || '');
-          setPreview(userInfo.avatar || null);
-          setFile(null);
-      }
-      setIsEditing(true);
-  };
+  useEffect(() => {
+    if (userInfo) {
+        setName(userInfo.name || '');
+        setBio(userInfo.bio || '');
+        setPreview(userInfo.avatar || null);
+    }
+  }, [userInfo]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -38,14 +40,25 @@ export const MyPage = () => {
 
   const { mutate: updateProfile } = useMutation({
     mutationFn: (formData: FormData) => patchMyInfo(formData),
-    onSuccess: async () => {
+    onSuccess: async (response, variables) => {
         await queryClient.invalidateQueries({ queryKey: ['myInfo'] });
+        
+        const newName = variables.get('name') as string;
+        const newBio = variables.get('bio') as string;
+        
+        setName(newName);
+        setBio(newBio);
+        
+        if (newName && typeof updateUserInfo === 'function') {
+            updateUserInfo(newName);
+        }
+
         alert('정보가 수정되었습니다!');
         setIsEditing(false);
     },
     onError: (err) => {
       console.error(err);
-      alert('수정 실패! (콘솔 확인)');
+      alert('수정 실패! 콘솔 확인');
     }
   });
 
@@ -60,19 +73,22 @@ export const MyPage = () => {
 
   if (isLoading) return <div className="text-white p-8">Loading...</div>;
 
-  const avatarText = userInfo?.name ? userInfo.name[0] : 'U';
-  const displayImage = isEditing ? preview : (userInfo?.avatar || `https://placehold.co/128x128?text=${avatarText}`);
+  const displayName = (!isEditing && userInfo?.name && name === '') ? userInfo.name : name;
+  const displayBio = (!isEditing && userInfo?.bio && bio === '') ? userInfo.bio : bio;
+  const avatarText = displayName ? displayName[0] : 'U';
+  
+  const displayImage = preview || userInfo?.avatar || `https://placehold.co/128x128?text=${avatarText}`;
 
   return (
     <div className="w-full h-full flex items-center justify-center p-4">
         <div className="bg-black w-full max-w-2xl p-8 rounded-xl flex items-center gap-8 shadow-2xl relative border border-neutral-800">
             {!isEditing && (
-                <button onClick={handleStartEdit} className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors p-2">⚙️ 수정</button>
+                <button onClick={() => setIsEditing(true)} className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors p-2">⚙️</button>
             )}
 
             <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 border-4 border-neutral-700">
-                    <img src={displayImage || undefined} alt="profile" className="w-full h-full object-cover"/>
+                    <img src={displayImage} alt="profile" className="w-full h-full object-cover"/>
                 </div>
                 {isEditing && (
                     <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer rounded-full opacity-0 hover:opacity-100 transition-opacity text-white font-bold text-sm">
@@ -93,9 +109,9 @@ export const MyPage = () => {
                     </div>
                 ) : (
                     <>
-                        <h2 className="text-4xl font-bold text-white">{userInfo?.name || "이름 없음"}</h2>
+                        <h2 className="text-4xl font-bold text-white">{displayName}</h2>
                         <div className="border border-white/20 rounded-lg p-3">
-                            <p className="text-xl text-white font-semibold">{userInfo?.bio || "소개가 없습니다."}</p>
+                            <p className="text-xl text-white font-semibold">{displayBio}</p>
                         </div>
                     </>
                 )}
