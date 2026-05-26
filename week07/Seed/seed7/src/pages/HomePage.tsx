@@ -40,8 +40,8 @@ const HomePage = () => {
     return (
       <div className="py-20 text-center space-y-4">
         <p className="text-red-500">목록 로드에 실패했습니다.</p>
-        <button 
-          onClick={() => refetch()} 
+        <button
+          onClick={() => refetch()}
           className="bg-[#FF007A] text-white px-6 py-2 rounded-md font-bold hover:bg-[#e6006e] transition-colors"
         >
           재시도
@@ -53,19 +53,17 @@ const HomePage = () => {
   return (
     <div className="space-y-8">
       <div className="flex justify-end items-center gap-2">
-        <button 
+        <button
           onClick={() => setOrder(PAGINATION_ORDER.desc)}
-          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            order === PAGINATION_ORDER.desc ? "bg-[#FF007A] text-white" : "bg-gray-800 text-gray-400 hover:text-white"
-          }`}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${order === PAGINATION_ORDER.desc ? "bg-[#FF007A] text-white" : "bg-gray-800 text-gray-400 hover:text-white"
+            }`}
         >
           최신순
         </button>
-        <button 
+        <button
           onClick={() => setOrder(PAGINATION_ORDER.asc)}
-          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            order === PAGINATION_ORDER.asc ? "bg-[#FF007A] text-white" : "bg-gray-800 text-gray-400 hover:text-white"
-          }`}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${order === PAGINATION_ORDER.asc ? "bg-[#FF007A] text-white" : "bg-gray-800 text-gray-400 hover:text-white"
+            }`}
         >
           오래된 순
         </button>
@@ -74,14 +72,14 @@ const HomePage = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {data?.pages.map((page) =>
           page.data.map((lp: LpItem) => (
-            <div 
-              key={lp.id} 
+            <div
+              key={lp.id}
               onClick={() => navigate(`/lp/${lp.id}`)}
               className="group relative aspect-square overflow-hidden rounded-md bg-[#1e1e1e] shadow-lg cursor-pointer"
             >
-              <img 
-                src={lp.thumbnail} 
-                alt={lp.title} 
+              <img
+                src={lp.thumbnail}
+                alt={lp.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 text-white">
@@ -101,7 +99,7 @@ const HomePage = () => {
         )}
       </div>
 
-     <div ref={ref} className="py-10">
+      <div ref={ref} className="py-10">
         {isFetchingNextPage && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {[...Array(5)].map((_, i) => (

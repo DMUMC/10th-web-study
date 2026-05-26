@@ -1,16 +1,16 @@
 import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
-import Homepage from './pages/Homepage';
-import Loginpage from './pages/Loginpage';
-import SignUpPage from './pages/SignUpPage';
+import Homepage from './pages/HomePage';
+import Loginpage from './pages/LoginPage';
+import SignUpPage from './pages/SignupPage';
 import MyPage from './pages/MyPage';
 import CreatePage from './pages/CreatePage';
 import LpDetailPage from './pages/LpDetailPage';
 import GoogleCallback from './pages/GoogleCallback';
 import NotFoundPage from './pages/NotFoundPage';
-import ProtectedLayout from './components/ProtectedRoute'; 
-import HomeLayout from './layouts/HomeLayout';
+import ProtectedLayout from './components/ProtectedRoute';
+import HomeLayout from './Layouts/HomeLayout';
 import { SidebarProvider } from './context/SidebarContext';
 
 const routes: RouteObject[] = [
@@ -58,13 +58,13 @@ export const queryClient: QueryClient = new QueryClient({
 });
 
 function App() {
-  return ( 
+  return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>   
-        <SidebarProvider> 
+      <AuthProvider>
+        <SidebarProvider>
           <RouterProvider router={router} />
         </SidebarProvider>
-      </AuthProvider>     
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
