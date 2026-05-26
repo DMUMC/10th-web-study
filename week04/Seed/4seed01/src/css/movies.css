@@ -1,0 +1,47 @@
+.movie-item {
+    position: relative;
+    width: 150px;
+    height: 225px;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.movieImg {
+    cursor: pointer;
+    object-fit: cover;
+}
+
+.movieImg:hover {
+    filter: blur(2px);
+}
+
+.movie-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.movie-item:hover .movie-overlay {
+    opacity: 1;
+}
+
+.movie-overview {
+    font-size: 11px;
+    margin-top: 10px;
+    display: -webkit-box;
+    -webkit-line-clcamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
