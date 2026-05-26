@@ -64,9 +64,9 @@ function App() {
       </div>
 
       <div className="p-10 space-y-5">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 50 }).map((_, i) => (
           <p key={i}>
-            내용 {i}
+            긴 콘텐츠 테스트 {i}
           </p>
         ))}
       </div>
