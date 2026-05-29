@@ -1,4 +1,4 @@
-import { selectAmount } from '../store/cartSlice'
+import { selectAmount } from '../features/cart/cartSlice'
 import { useAppSelector } from '../store/hooks'
 
 export default function Header() {

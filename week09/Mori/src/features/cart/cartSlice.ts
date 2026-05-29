@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import mockCartItems from '../constants/cartItems'
-import type { CartItem } from '../types/cartItem'
-import type { RootState } from './store'
+import mockCartItems from '../../constants/cartItems'
+import type { RootState } from '../../store/store'
+import type { CartItem } from '../../types/cartItem'
 
 export interface CartState {
   cartItems: CartItem[]

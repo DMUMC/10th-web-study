@@ -1,13 +1,13 @@
 import QuantityControl from '../components/QuantityControl'
 import {
   calculateTotals,
-  clearCart,
   decrease,
   increase,
   selectAmount,
   selectCartItems,
   selectTotal,
-} from '../store/cartSlice'
+} from '../features/cart/cartSlice'
+import { openModal } from '../features/modal/modalSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { formatPrice } from '../utils/formatPrice'
 
@@ -27,9 +27,8 @@ export default function CartPage() {
     dispatch(calculateTotals())
   }
 
-  const handleClearCart = () => {
-    dispatch(clearCart())
-    dispatch(calculateTotals())
+  const handleOpenClearModal = () => {
+    dispatch(openModal())
   }
 
   if (cartItems.length === 0) {
@@ -53,7 +52,7 @@ export default function CartPage() {
         </div>
         <button
           type="button"
-          onClick={handleClearCart}
+          onClick={handleOpenClearModal}
           className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
         >
           전체 삭제
