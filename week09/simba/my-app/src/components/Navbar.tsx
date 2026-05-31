@@ -1,8 +1,7 @@
-import { useSelector } from 'react-redux'
-import type { RootState } from '../store'
+import useCartStore from '../store/useCartStore'
 
 function Navbar() {
-  const { amount } = useSelector((state: RootState) => state.cart)
+  const { amount } = useCartStore()
 
   return (
     <nav className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">

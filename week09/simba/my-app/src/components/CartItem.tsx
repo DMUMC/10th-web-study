@@ -1,5 +1,4 @@
-import { useDispatch } from 'react-redux'
-import { increase, decrease, removeItem } from '../store/features/cart/cartSlice'
+import useCartStore from '../store/useCartStore'
 
 interface Props {
   id: string
@@ -11,7 +10,7 @@ interface Props {
 }
 
 function CartItem({ id, title, singer, price, img, amount }: Props) {
-  const dispatch = useDispatch()
+  const { increase, decrease, removeItem } = useCartStore()
 
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 last:border-none">
@@ -26,21 +25,21 @@ function CartItem({ id, title, singer, price, img, amount }: Props) {
       <div className="flex flex-col items-center gap-1">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => dispatch(decrease(id))}
+            onClick={() => decrease(id)}
             className="w-7 h-7 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
           >
             -
           </button>
           <span className="w-6 text-center">{amount}</span>
           <button
-            onClick={() => dispatch(increase(id))}
+            onClick={() => increase(id)}
             className="w-7 h-7 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
           >
             +
           </button>
         </div>
         <button
-          onClick={() => dispatch(removeItem(id))}
+          onClick={() => removeItem(id)}
           className="text-xs text-red-400 hover:text-red-600"
         >
           삭제
