@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { increase, decrease, removeItem } from '../store/cartSlice'
+import { increase, decrease, removeItem } from '../store/features/cart/cartSlice'
 
 interface Props {
   id: string
