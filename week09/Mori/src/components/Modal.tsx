@@ -1,25 +1,9 @@
-import {
-  calculateTotals,
-  clearCart,
-} from '../features/cart/cartSlice'
-import { closeModal, selectIsModalOpen } from '../features/modal/modalSlice'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { useModalStore } from '../stores/modalStore'
 
 export default function Modal() {
-  const dispatch = useAppDispatch()
-  const isOpen = useAppSelector(selectIsModalOpen)
+  const { isOpen, close, confirmClearCart } = useModalStore()
 
   if (!isOpen) return null
-
-  const handleClose = () => {
-    dispatch(closeModal())
-  }
-
-  const handleConfirm = () => {
-    dispatch(clearCart())
-    dispatch(calculateTotals())
-    dispatch(closeModal())
-  }
 
   return (
     <div
@@ -41,14 +25,14 @@ export default function Modal() {
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            onClick={handleClose}
+            onClick={close}
             className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
           >
             아니요
           </button>
           <button
             type="button"
-            onClick={handleConfirm}
+            onClick={confirmClearCart}
             className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
           >
             네

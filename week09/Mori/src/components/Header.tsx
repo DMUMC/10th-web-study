@@ -1,8 +1,7 @@
-import { selectAmount } from '../features/cart/cartSlice'
-import { useAppSelector } from '../store/hooks'
+import { useCartStore } from '../stores/cartStore'
 
 export default function Header() {
-  const amount = useAppSelector(selectAmount)
+  const { amount } = useCartStore()
 
   return (
     <header className="sticky top-0 z-10 border-b border-stone-200 bg-white/90 backdrop-blur">

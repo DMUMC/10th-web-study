@@ -1,35 +1,11 @@
 import QuantityControl from '../components/QuantityControl'
-import {
-  calculateTotals,
-  decrease,
-  increase,
-  selectAmount,
-  selectCartItems,
-  selectTotal,
-} from '../features/cart/cartSlice'
-import { openModal } from '../features/modal/modalSlice'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { useCartStore } from '../stores/cartStore'
+import { useModalStore } from '../stores/modalStore'
 import { formatPrice } from '../utils/formatPrice'
 
 export default function CartPage() {
-  const dispatch = useAppDispatch()
-  const cartItems = useAppSelector(selectCartItems)
-  const amount = useAppSelector(selectAmount)
-  const total = useAppSelector(selectTotal)
-
-  const handleIncrease = (id: string) => {
-    dispatch(increase(id))
-    dispatch(calculateTotals())
-  }
-
-  const handleDecrease = (id: string) => {
-    dispatch(decrease(id))
-    dispatch(calculateTotals())
-  }
-
-  const handleOpenClearModal = () => {
-    dispatch(openModal())
-  }
+  const { cartItems, amount, total, increase, decrease } = useCartStore()
+  const { open } = useModalStore()
 
   if (cartItems.length === 0) {
     return (
@@ -52,7 +28,7 @@ export default function CartPage() {
         </div>
         <button
           type="button"
-          onClick={handleOpenClearModal}
+          onClick={open}
           className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
         >
           전체 삭제
@@ -89,8 +65,8 @@ export default function CartPage() {
               <div className="flex flex-wrap items-center justify-between gap-4 sm:flex-col sm:items-end">
                 <QuantityControl
                   amount={item.amount}
-                  onDecrease={() => handleDecrease(item.id)}
-                  onIncrease={() => handleIncrease(item.id)}
+                  onDecrease={() => decrease(item.id)}
+                  onIncrease={() => increase(item.id)}
                   min={0}
                 />
                 <span className="text-sm font-semibold text-stone-700">
