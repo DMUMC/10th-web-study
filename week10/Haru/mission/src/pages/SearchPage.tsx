@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { axiosClient } from '../apis/axiosClient';
 import MovieModal from '../components/MovieModal';
+import { useNavigate } from 'react-router-dom';
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -8,6 +9,7 @@ const SearchPage = () => {
   const [language, setLanguage] = useState('ko-KR');
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +75,7 @@ const SearchPage = () => {
           <div 
             key={movie.id} 
             className="border p-2 rounded shadow-sm cursor-pointer hover:shadow-lg"
-            onClick={() => setSelectedMovie(movie)}
+            onClick={() => navigate(`/movies/${movie.id}`)}
           >
             <img src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} alt={movie.title} />
             <h3 className="font-bold text-sm truncate">{movie.title}</h3>
