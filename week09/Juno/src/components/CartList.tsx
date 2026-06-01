@@ -1,20 +1,18 @@
-import { useSelector } from "react-redux";
-import type { RootState } from "../stores/store";
-import CartItems from "./CartItem";
-
+import CartItem from './CartItem';
+import { useSelecter } from '../hooks/useCustomRedux';
 
 const CartList = () => {
-  const { cartItems } = useSelector((state: RootState) => state.cart);
+    const { cartItems } = useSelecter((state) => state.cart);
 
-  return (
-    <div className="flex flex-col items-center justify-center">
-      <ul>
-        {cartItems.map((item) => (
-          <CartItems key={item.id} lp={item} />
-        ))}
-      </ul>
-    </div>
-  );
+    return (
+        <div className='flex flex-col items-center justify-center'>
+            <ul>
+                {cartItems.map((item) => (
+                    <CartItem key={item.id} lp={item} />
+                ))}
+            </ul>
+        </div>
+    );
 };
 
 export default CartList;
